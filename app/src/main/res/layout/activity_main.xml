@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="ns.me.ns.furaffinity.ui.activity.MainActivity">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="ns.me.ns.furaffinity.ui.viewmodel.MainViewModel" />
+    </data>
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/imageGalleryRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:gridDivider="@{@dimen/grid_divider}"
+            app:layoutManager="android.support.v7.widget.GridLayoutManager"
+            app:onEndScrollListener="@{viewModel.getOnEndScrollListener}"
+            app:spanCount="3" />
+
+    </android.support.design.widget.CoordinatorLayout>
+
+</layout>
