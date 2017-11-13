@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="ns.me.ns.furaffinity.ui.viewmodel.MainViewModel" />
+            type="ns.me.ns.furaffinity.ui.viewmodel.FullViewViewModel" />
     </data>
 
     <android.support.design.widget.CoordinatorLayout
@@ -23,19 +23,18 @@
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                app:title="@{viewModel.full.title}" />
 
         </android.support.design.widget.AppBarLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/imageGalleryRecyclerView"
+        <ImageView
+            android:id="@+id/fullImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:gridDivider="@{@dimen/grid_divider}"
-            app:layoutManager="android.support.v7.widget.GridLayoutManager"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:onEndScrollListener="@{viewModel.getOnEndScrollListener}"
-            app:spanCount="3" />
+            app:loadImg="@{viewModel.full.src}"
+            tools:ignore="ContentDescription" />
 
     </android.support.design.widget.CoordinatorLayout>
 

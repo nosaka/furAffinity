@@ -1,8 +1,6 @@
 package ns.me.ns.furaffinity.ui.activity
 
 import android.arch.lifecycle.LifecycleRegistry
-import android.arch.lifecycle.ViewModelProvider
-import android.arch.lifecycle.ViewModelProviders
 import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -14,10 +12,6 @@ import ns.me.ns.furaffinity.ui.viewmodel.AbstractBaseViewModel
 abstract class AbstractBaseActivity<out ViewModel : AbstractBaseViewModel> : AppCompatActivity() {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
-
-    protected val viewModelFactory:ViewModelProvider.Factory by lazy {
-        ViewModelProviders.DefaultFactory(application)
-    }
 
     abstract val viewModel: ViewModel
 

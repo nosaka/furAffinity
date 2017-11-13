@@ -3,8 +3,9 @@ package ns.me.ns.furaffinity.ui.viewmodel
 import android.app.Application
 import android.databinding.ObservableField
 import android.view.View
+import javax.inject.Inject
 
-class LoginViewModel(application: Application) : AbstractBaseViewModel(application) {
+class LoginViewModel @Inject constructor(application: Application) : AbstractBaseViewModel(application) {
 
     var mailAddressInput = ObservableField<String>()
 

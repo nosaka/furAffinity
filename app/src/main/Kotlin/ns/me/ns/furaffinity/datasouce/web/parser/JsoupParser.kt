@@ -1,28 +1,37 @@
 package ns.me.ns.furaffinity.datasouce.web.parser
 
 import ns.me.ns.furaffinity.datasouce.web.model.JsoupPOJO
+import ns.me.ns.furaffinity.exception.LoginRequiredException
 import org.jsoup.nodes.Document
 
 /**
  * JsoupParser
  */
-interface JsoupParser {
+interface JsoupParser<T> {
+
+    val requiredLogin: Boolean
 
     fun isLogin(document: Document): Boolean {
-        val noBlock = document.select(".header_bkg .noblock")?.first()
-        if (noBlock?.getElementsByAttributeValueMatching("href", "/logout/$") != null) {
+        if (document.getElementById("logout-link") != null) {
             return true
         }
 
         return false
     }
 
-    fun <T> parseDocument(document: Document, data: T?): T? {
+    fun parseDocument(document: Document, data: T?): T? {
         val result = data as? JsoupPOJO
         result?.isLogin = isLogin(document)
+
+        if (result?.isLogin != true && requiredLogin) {
+            // 必須ログインにも関わらずログインしていない場合は例外処理
+            throw LoginRequiredException(this::class)
+
+        }
+
         return parse(document, data)
     }
 
-    fun <T> parse(document: Document, data: T?): T?
+    fun parse(document: Document, data: T?): T?
 
 }

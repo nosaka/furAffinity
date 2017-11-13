@@ -1,25 +1,31 @@
 package ns.me.ns.furaffinity.datasouce.web.parser
 
+import ns.me.ns.furaffinity.Constants
 import ns.me.ns.furaffinity.datasouce.web.model.Browse
 import org.jsoup.nodes.Document
 
 /**
- * JsoupParser
+ * [Browse] Parser
  */
-class BrowseParser : JsoupParser {
+class BrowseParser() : JsoupParser<Browse> {
+
+    override val requiredLogin: Boolean = false
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> parse(document: Document, data: T?): T? {
+    override fun parse(document: Document, data: Browse?): Browse? {
+        TODO() // UNCHECKED
         val result = data as? Browse ?: return null
-        
-        val gallery = document.select(".gallery")?.first()
+
+        val gallery = document.select("section.gallery")?.first()
         val figures = gallery?.getElementsByTag("figure")
         figures?.forEach {
             val img = it.getElementsByTag("img")?.first()
             val src = "http:${img?.attr("src")}"
-            result.imageSrcs.add(src)
+            val aHref = it.getElementsByTag("a")?.first()
+            val link = "${Constants.WEB_BASE}:${aHref?.attr("href")}"
+            result.images.add(Browse.Image(src, link))
         }
-        return result as T
+        return result
     }
 
 }

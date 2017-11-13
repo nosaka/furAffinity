@@ -70,13 +70,13 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
      *
      * @param <Data> データ要素
      */
-    var onItemClick: ((adapter: AbstractRecyclerViewAdapter<Data>, data: Data, clickView: View) -> Unit)? = null
+    var onItemClick: ((adapter: AbstractRecyclerViewAdapter<Data>, data: Data, clickView: View?) -> Unit)? = null
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder? {
-        when (viewType) {
-            TYPE_HEADER -> return createHeaderViewHolder(inflater, viewGroup)
-            TYPE_FOOTER -> return createFooterViewHolder(inflater, viewGroup)
-            else -> return createDataViewHolder(inflater, viewGroup, viewType)
+        return when (viewType) {
+            TYPE_HEADER -> createHeaderViewHolder(inflater, viewGroup)
+            TYPE_FOOTER -> createFooterViewHolder(inflater, viewGroup)
+            else -> createDataViewHolder(inflater, viewGroup, viewType)
         }
     }
 
@@ -266,12 +266,14 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
     }
 
     override fun addDataAll(dataList: Collection<Data>) {
+        if (dataList.isEmpty()) return
         val insertIndex = mDataList.size
         mDataList.addAll(dataList)
         notifyItemInserted(insertIndex)
     }
 
     override fun addDataAll(vararg dataList: Data) {
+        if (dataList.isEmpty()) return
         val insertIndex = mDataList.size
         mDataList.addAll(Arrays.asList(*dataList))
         notifyItemInserted(insertIndex)

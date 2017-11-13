@@ -1,4 +1,4 @@
-package ns.me.ns.furaffinity.datasouce.web.parser
+package ns.me.ns.furaffinity.datasouce.web
 
 import kotlin.reflect.KClass
 
