@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import io.reactivex.subjects.PublishSubject
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.ListItemImageGalleryContentsBinding
+import ns.me.ns.furaffinity.datasouce.web.model.impl.entity.ViewElement
 import ns.me.ns.furaffinity.ui.adapter.AbstractRecyclerViewAdapter
 
 /**
@@ -26,19 +27,16 @@ class ImageGalleryAdapter(context: Context) : AbstractRecyclerViewAdapter<ImageG
          */
         val TYPE_DATA_CONTENTS = 0
 
-        /**
-         * 要素タイプ：データ(不明)
-         */
-        val TYPE_DATA_UNKNOWN = 1
-
     }
 
-    class ViewModel {
-        var dataViewType: Int = TYPE_DATA_UNKNOWN
-        var title: String? = null
-        var src: String? = null
-        var link: String? = null
-        var viewId: Int? = null
+    class ViewModel(viewElement: ViewElement) : ViewElement() {
+        init {
+            viewId = viewElement.viewId
+            name = viewElement.name
+            href = viewElement.href
+            imageElement = viewElement.imageElement
+            userElement = viewElement.userElement
+        }
 
         val onItemClickPublishSubject: PublishSubject<ImageGalleryAdapter.ViewModel>
                 = PublishSubject.create<ImageGalleryAdapter.ViewModel>()
@@ -60,7 +58,7 @@ class ImageGalleryAdapter(context: Context) : AbstractRecyclerViewAdapter<ImageG
 
     class FooterHolder(itemView: View) : AbstractRecyclerViewAdapter.ViewHolder(itemView)
 
-    override fun dispatchDataViewType(position: Int): Int = getData(position).dataViewType
+    override fun dispatchDataViewType(position: Int): Int = TYPE_DATA_CONTENTS
 
     override fun createDataViewHolder(inflater: LayoutInflater, parent: ViewGroup, dataViewType: Int): AbstractRecyclerViewAdapter.ViewHolder? {
         return when (dataViewType) {

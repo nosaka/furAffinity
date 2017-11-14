@@ -2,11 +2,12 @@ package ns.me.ns.furaffinity.ui.viewmodel
 
 import android.app.Application
 import android.support.v7.widget.RecyclerView
+import android.view.View
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import ns.me.ns.furaffinity.datasouce.web.AppWebApiService
 import ns.me.ns.furaffinity.exception.LoginRequiredException
-import ns.me.ns.furaffinity.ui.activity.FullViewActivity
 import ns.me.ns.furaffinity.ui.activity.LoginActivity
 import ns.me.ns.furaffinity.ui.adapter.OnEndScrollListener
 import ns.me.ns.furaffinity.ui.adapter.recycler.ImageGalleryAdapter
@@ -18,17 +19,17 @@ class MainViewModel @Inject constructor(application: Application) : AbstractBase
     @Inject
     lateinit var service: AppWebApiService
 
+    private var pathMore: String? = ""
+
+    val fullViewSubject: PublishSubject<Pair<View?, ImageGalleryAdapter.ViewModel>> = PublishSubject.create()
+
     val imageGalleryAdapter: ImageGalleryAdapter by lazy {
         ImageGalleryAdapter(application).apply {
             onItemClick = { _, data, view ->
-                data.viewId?.let {
-                    startActivitySubject.onNext(StartActivitySubject(view, FullViewActivity.intent(context, it)))
-                }
+                fullViewSubject.onNext(Pair(view, data))
             }
         }
     }
-
-    private var pathMore: String? = ""
 
     fun getOnEndScrollListener(): OnEndScrollListener {
         return object : OnEndScrollListener() {
@@ -51,14 +52,8 @@ class MainViewModel @Inject constructor(application: Application) : AbstractBase
                     pathMore = it.pathMore
                 }
                 .map { response ->
-                    return@map response.images.map { image ->
-                        ImageGalleryAdapter.ViewModel().also {
-                            it.dataViewType = ImageGalleryAdapter.TYPE_DATA_CONTENTS
-                            it.title = image.title
-                            it.src = image.src
-                            it.link = image.link
-                            it.viewId = image.viewId
-                        }
+                    return@map response.viewElements.map { element ->
+                        ImageGalleryAdapter.ViewModel(element)
                     }
                 }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -71,7 +66,7 @@ class MainViewModel @Inject constructor(application: Application) : AbstractBase
                 }, {
                     LogUtil.e(it)
                     if (it is LoginRequiredException) {
-                        startActivitySubject.onNext(StartActivitySubject(null, LoginActivity.intent(context)))
+                        startActivitySubject.onNext(LoginActivity.intent(context))
                     }
                 })
     }

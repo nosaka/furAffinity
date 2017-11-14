@@ -8,7 +8,7 @@ import java.lang.reflect.Type
 import kotlin.reflect.full.primaryConstructor
 
 /**
- * JsoupConverter
+ * JsoupConverterFactory
  */
 class JsoupConverterFactory : Converter.Factory() {
     override fun responseBodyConverter(type: Type, annotations: Array<out Annotation>?, retrofit: Retrofit?): Converter<ResponseBody, *>? {

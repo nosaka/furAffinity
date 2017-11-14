@@ -1,6 +1,7 @@
-package ns.me.ns.furaffinity.datasouce.web.parser
+package ns.me.ns.furaffinity.datasouce.web.parser.impl
 
-import ns.me.ns.furaffinity.datasouce.web.model.Full
+import ns.me.ns.furaffinity.datasouce.web.model.impl.Full
+import ns.me.ns.furaffinity.datasouce.web.parser.JsoupParser
 import org.jsoup.nodes.Document
 
 /**
@@ -17,10 +18,11 @@ class FullParser : JsoupParser<Full> {
         result.title = document.title()
         val submissionImg = document.getElementById("submissionImg")
         submissionImg?.let {
-            result.alt = it.attr("alt")
-            result.src = "http:${it.attr("src")}"
+            it.attr("src")?.let {
+                result.imageElement.src = "http:$it"
+            }
+            result.imageElement.alt = it.attr("alt")
         }
-
         return result
     }
 

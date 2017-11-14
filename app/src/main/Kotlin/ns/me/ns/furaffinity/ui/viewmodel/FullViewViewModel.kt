@@ -5,7 +5,7 @@ import android.databinding.ObservableField
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import ns.me.ns.furaffinity.datasouce.web.AppWebApiService
-import ns.me.ns.furaffinity.datasouce.web.model.Full
+import ns.me.ns.furaffinity.datasouce.web.model.impl.Full
 import ns.me.ns.furaffinity.exception.LoginRequiredException
 import ns.me.ns.furaffinity.ui.activity.LoginActivity
 import ns.me.ns.furaffinity.util.LogUtil
@@ -36,7 +36,7 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
                 }, {
                     LogUtil.e(it)
                     if (it is LoginRequiredException) {
-                        startActivitySubject.onNext(StartActivitySubject(null, LoginActivity.intent(context)))
+                        startActivitySubject.onNext(LoginActivity.intent(context))
                     }
                 })
     }

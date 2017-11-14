@@ -5,10 +5,11 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.support.v4.app.ActivityOptionsCompat
 import android.support.v7.widget.GridLayoutManager
 import android.transition.Fade
+import android.widget.ImageView
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.ActivityMainBinding
 import ns.me.ns.furaffinity.di.Injectable
@@ -46,9 +47,26 @@ class MainActivity : AbstractBaseActivity<MainViewModel>(), Injectable {
         }
         binding.imageGalleryRecyclerView.adapter = viewModel.imageGalleryAdapter
         viewModel.startActivitySubject.subscribe {
-            val option = ActivityOptionsCompat.makeSceneTransitionAnimation(this@MainActivity, it.view, "test")
-            startActivity(it.intent, option.toBundle())
+            startActivity(it)
         }
+        viewModel.fullViewSubject.subscribe {
+            val view = it.first
+            val viewId = it.second.viewId
+            if (view == null || viewId == null) {
+                return@subscribe
+            }
+
+            it.second.viewId?.let {
+                val bitmap = ((view as? ImageView)?.drawable as? BitmapDrawable)?.bitmap
+
+
+                startActivity(FullViewActivity.intent(this@MainActivity, viewId, bitmap),
+                        FullViewActivity.option(this@MainActivity, view)
+                )
+            }
+
+        }
+
     }
 
 }

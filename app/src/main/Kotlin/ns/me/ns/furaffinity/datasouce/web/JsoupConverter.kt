@@ -2,7 +2,6 @@ package ns.me.ns.furaffinity.datasouce.web
 
 import com.google.gson.internal.ObjectConstructor
 import ns.me.ns.furaffinity.datasouce.web.parser.JsoupParser
-import ns.me.ns.furaffinity.util.LogUtil
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import retrofit2.Converter
@@ -13,7 +12,7 @@ import java.lang.reflect.InvocationTargetException
 /**
  * JsoupConverter
  */
-class JsoupConverter<T>(private val clazz: Class<T>, private val jsoupParser: JsoupParser<*>) : Converter<ResponseBody, T> {
+class JsoupConverter<T>(clazz: Class<T>, jsoupParser: JsoupParser<*>) : Converter<ResponseBody, T> {
 
     private val constructor: ObjectConstructor<T>? = newDefaultConstructor(clazz)
 
@@ -24,7 +23,6 @@ class JsoupConverter<T>(private val clazz: Class<T>, private val jsoupParser: Js
     override fun convert(responseBody: ResponseBody): T? {
         val document = Jsoup.parseBodyFragment(responseBody.string())
         val result = constructor?.construct()
-        LogUtil.d("@@@@", "$result")
         return parser.parseDocument(document, result)
     }
 

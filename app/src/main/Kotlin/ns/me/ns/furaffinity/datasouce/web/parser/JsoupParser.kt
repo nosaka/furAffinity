@@ -1,6 +1,6 @@
 package ns.me.ns.furaffinity.datasouce.web.parser
 
-import ns.me.ns.furaffinity.datasouce.web.model.JsoupPOJO
+import ns.me.ns.furaffinity.datasouce.web.model.AbstractBaseJsoupResponse
 import ns.me.ns.furaffinity.exception.LoginRequiredException
 import org.jsoup.nodes.Document
 
@@ -12,7 +12,7 @@ interface JsoupParser<T> {
     val requiredLogin: Boolean
 
     fun isLogin(document: Document): Boolean {
-        if (document.getElementById("logout-link") != null) {
+        if (document.getElementById("logout-href") != null || document.getElementById("logout-link") != null) {
             return true
         }
 
@@ -20,7 +20,7 @@ interface JsoupParser<T> {
     }
 
     fun parseDocument(document: Document, data: T?): T? {
-        val result = data as? JsoupPOJO
+        val result = data as? AbstractBaseJsoupResponse
         result?.isLogin = isLogin(document)
 
         if (result?.isLogin != true && requiredLogin) {

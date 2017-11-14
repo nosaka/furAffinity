@@ -22,6 +22,17 @@ object BindingAdapters {
         }
     }
 
+    /**
+     * 画像ロード処理
+     */
+    @BindingAdapter("loadPlaceHolderImage")
+    @JvmStatic
+    fun loadPlaceHolderImage(view: ImageView, oldUrl: String?, newUrl: String?) {
+        if (!newUrl.equals(oldUrl)) {
+            Picasso.with(view.context).load(newUrl).placeholder(view.drawable).into(view)
+        }
+    }
+
     @BindingAdapter("onEndScrollListener")
     @JvmStatic
     fun setOnScrollListener(view: RecyclerView, listener: OnEndScrollListener) {

@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
-        android:enabled="@{viewModel.link != null}"
+        android:enabled="@{viewModel.href != null}"
         android:focusable="true"
         android:foreground="?android:attr/selectableItemBackground"
         android:onClick="@{viewModel.getOnItemSelected}"
@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            app:loadImg="@{viewModel.src}"
+            app:loadImg="@{viewModel.imageElement.src}"
             tools:ignore="ContentDescription" />
 
         <TextView
@@ -39,7 +39,7 @@
             android:lines="1"
             android:paddingEnd="@dimen/material_padding"
             android:paddingStart="@dimen/material_padding"
-            android:text="@{viewModel.title}"
+            android:text="@{viewModel.name}"
             android:textColor="@android:color/white"
             android:textSize="@dimen/material_text_list_primary" />
 
