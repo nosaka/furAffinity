@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="ns.me.ns.furaffinity.ui.adapter.recycler.ImageGalleryAdapter.ViewModel" />
+            type="ns.me.ns.furaffinity.ui.adapter.recycler.ImageGalleryAdapter.ContentsViewModel" />
 
     </data>
 
@@ -19,7 +19,7 @@
         android:enabled="@{viewModel.href != null}"
         android:focusable="true"
         android:foreground="?android:attr/selectableItemBackground"
-        android:onClick="@{viewModel.getOnItemSelected}"
+        android:onClick="@{viewModel.onItemSelected}"
         android:orientation="vertical">
 
         <ImageView

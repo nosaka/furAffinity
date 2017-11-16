@@ -21,39 +21,42 @@ class MainViewModel @Inject constructor(application: Application) : AbstractBase
 
     private var pathMore: String? = ""
 
-    val fullViewSubject: PublishSubject<Pair<View?, ImageGalleryAdapter.ViewModel>> = PublishSubject.create()
+    val fullViewSubject: PublishSubject<Pair<View?, ImageGalleryAdapter.ContentsViewModel>> = PublishSubject.create()
 
     val imageGalleryAdapter: ImageGalleryAdapter by lazy {
         ImageGalleryAdapter(application).apply {
             onItemClick = { _, data, view ->
                 fullViewSubject.onNext(Pair(view, data))
             }
+            onRequestReload = {
+                getBrowse()
+            }
+            setFooterDisplay(true)
         }
     }
 
-    fun getOnEndScrollListener(): OnEndScrollListener {
-        return object : OnEndScrollListener() {
-            override fun onEndScroll(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                getBrowse()
-            }
+    val onEndScrollListener = object : OnEndScrollListener() {
+        override fun onEndScroll(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            getBrowse()
         }
     }
 
     private fun getBrowse() {
-        if (pathMore == null) {
+        val more = pathMore
+        if (more == null) {
             imageGalleryAdapter.setFooterDisplay(false)
             imageGalleryAdapter.notifyItemChanged(imageGalleryAdapter.itemCount)
             return
         }
 
-        service.getMsgSubmissions(pathMore = pathMore!!)
+        service.getMsgSubmissions(pathMore = more)
                 .subscribeOn(Schedulers.io())
                 .doOnNext {
                     pathMore = it.pathMore
                 }
                 .map { response ->
                     return@map response.viewElements.map { element ->
-                        ImageGalleryAdapter.ViewModel(element)
+                        ImageGalleryAdapter.ContentsViewModel(element)
                     }
                 }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -61,12 +64,13 @@ class MainViewModel @Inject constructor(application: Application) : AbstractBase
                     imageGalleryAdapter.addDataAll(it)
                     if (it.isEmpty()) {
                         imageGalleryAdapter.setFooterDisplay(false)
-                        imageGalleryAdapter.notifyItemChanged(imageGalleryAdapter.itemCount)
                     }
                 }, {
                     LogUtil.e(it)
+                    imageGalleryAdapter.loadingError = true
                     if (it is LoginRequiredException) {
                         startActivitySubject.onNext(LoginActivity.intent(context))
+                        finishActivitySubject.onNext(Unit)
                     }
                 })
     }

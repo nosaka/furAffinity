@@ -57,6 +57,11 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:$android_lifecycle_version"
     annotationProcessor "android.arch.lifecycle:compiler:$android_lifecycle_version"
 
+    implementation "android.arch.persistence.room:runtime:$android_lifecycle_version"
+    implementation "android.arch.persistence.room:rxjava2:$android_lifecycle_version"
+    annotationProcessor "android.arch.persistence.room:compiler:$android_lifecycle_version"
+
+
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation "com.google.dagger:dagger-android:$dagger_version"
     implementation "com.google.dagger:dagger-android-support:$dagger_version"
@@ -66,6 +71,7 @@ dependencies {
     implementation "org.apache.commons:commons-lang3:3.5"
 
 
+    kapt "android.arch.persistence.room:compiler:$android_lifecycle_version"
     kapt "com.android.databinding:compiler:$android_plugin_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"

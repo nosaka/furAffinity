@@ -3,6 +3,7 @@ package ns.me.ns.furaffinity.ui.adapter.recycler.decoration
 import android.graphics.Rect
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import ns.me.ns.furaffinity.ui.adapter.RecyclerViewPartsInterface
 
 
 /**
@@ -17,7 +18,7 @@ class ItemDecorationGrid(private val gridSize: Int, dividerSize: Float) : Recycl
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State?) {
 
         val itemPosition = (view.layoutParams as RecyclerView.LayoutParams).viewAdapterPosition
-        (parent.adapter as? ViewTypeDispatcher)?.let {
+        (parent.adapter as? RecyclerViewPartsInterface)?.let {
             if (it.isFooter(itemPosition) || it.isHeader(itemPosition)) {
                 return
             }

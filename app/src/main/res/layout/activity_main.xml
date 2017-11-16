@@ -35,7 +35,7 @@
             app:gridDivider="@{@dimen/grid_divider}"
             app:layoutManager="android.support.v7.widget.GridLayoutManager"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:onEndScrollListener="@{viewModel.getOnEndScrollListener}"
+            app:onEndScrollListener="@{viewModel.onEndScrollListener}"
             app:spanCount="3" />
 
     </android.support.design.widget.CoordinatorLayout>

@@ -9,7 +9,7 @@ import javax.inject.Singleton
 /**
  * Provider for App
  */
-@Module(includes = arrayOf(WebModule::class, ViewModule::class))
+@Module(includes = arrayOf(WebModule::class, DatabaseModule::class, ViewModule::class))
 class AppModule(private val application: Application) {
 
     @Provides
@@ -18,6 +18,6 @@ class AppModule(private val application: Application) {
 
     @Provides
     @Singleton
-    fun provideContext(application: Application): Context = this.application
+    fun provideContext(): Context = this.application
 
 }

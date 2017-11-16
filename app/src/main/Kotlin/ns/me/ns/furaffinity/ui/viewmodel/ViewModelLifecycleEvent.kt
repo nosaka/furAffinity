@@ -1,7 +1,7 @@
 package ns.me.ns.furaffinity.ui.viewmodel
 
 /**
- * Lifecycle for ViewModel
+ * Lifecycle for ContentsViewModel
  */
 interface ViewModelLifecycle {
 

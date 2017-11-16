@@ -1,14 +1,21 @@
 package ns.me.ns.furaffinity.ui
 
 import android.databinding.BindingAdapter
+import android.databinding.BindingMethod
+import android.databinding.BindingMethods
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.widget.ImageView
+import com.github.chrisbanes.photoview.PhotoView
 import com.squareup.picasso.Picasso
 import ns.me.ns.furaffinity.ui.adapter.OnEndScrollListener
 import ns.me.ns.furaffinity.ui.adapter.recycler.decoration.ItemDecorationGrid
 
 
+@BindingMethods(
+        BindingMethod(type = PhotoView::class, attribute = "onPhotoTapListener", method = "setOnPhotoTapListener"),
+        BindingMethod(type = PhotoView::class, attribute = "onSingleFlingListener", method = "setOnSingleFlingListener")
+)
 object BindingAdapters {
 
     /**

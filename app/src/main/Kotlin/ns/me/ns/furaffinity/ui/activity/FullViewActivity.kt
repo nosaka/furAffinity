@@ -1,6 +1,6 @@
 package ns.me.ns.furaffinity.ui.activity
 
-import android.annotation.SuppressLint
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
@@ -12,12 +12,12 @@ import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v7.graphics.Palette
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import ns.me.ns.furaffinity.Constants
@@ -28,6 +28,7 @@ import ns.me.ns.furaffinity.di.Injectable
 import ns.me.ns.furaffinity.ui.viewmodel.FullViewViewModel
 import ns.me.ns.furaffinity.util.BitmapUtil
 import ns.me.ns.furaffinity.util.LogUtil
+import ns.me.ns.furaffinity.util.ToastUtil
 import javax.inject.Inject
 
 
@@ -41,9 +42,12 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
 
         private const val KEY_SHARED_IMAGE = "imageElement"
 
-        fun intent(context: Context, viewId: Int, bitmp: Bitmap?) = Intent(context, FullViewActivity::class.java).apply {
+        // Y軸最低スワイプ距離
+        private const val FINISH_DISTANCE = -320
+
+        fun intent(context: Context, viewId: Int, bitmap: Bitmap?) = Intent(context, FullViewActivity::class.java).apply {
             putExtra(KEY_BUNDLE_VIEW_ID, viewId)
-            putExtra(KEY_BUNDLE_BITMP, bitmp)
+            putExtra(KEY_BUNDLE_BITMP, bitmap)
         }
 
         fun option(activity: Activity, view: View): Bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, view, KEY_SHARED_IMAGE).toBundle()
@@ -60,14 +64,10 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
 
     private lateinit var binding: ActivityFullViewBinding
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_full_view)
         setSupportActionBar(binding.toolbar)
-        binding.fullImageView.setImageBitmap(intent.getParcelableExtra<Bitmap>(KEY_BUNDLE_BITMP))
-        binding.viewModel = viewModel
-
         getImageBitmap()?.let {
             Palette.from(it).generate().dominantSwatch?.let {
                 binding.container.setBackgroundColor(it.rgb)
@@ -75,22 +75,50 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
                 binding.toolbar.setTitleTextColor(it.titleTextColor)
             }
         }
-
+        binding.fullImageView.setImageBitmap(intent.getParcelableExtra(KEY_BUNDLE_BITMP))
+        binding.fullImageView.scaleType = ImageView.ScaleType.FIT_CENTER
         binding.fullImageView.transitionName = KEY_SHARED_IMAGE
-        binding.fullImageView.setOnClickListener {
-            val visible = window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_HIDE_NAVIGATION == 0
-            if (visible) {
-                hideSystemUI()
-            } else {
-                showSystemUI()
+
+        binding.fullImageView.apply {
+            var animator: ValueAnimator? = null
+            setOnViewDragListener { _, dy ->
+                if (dy > 0) return@setOnViewDragListener
+                animator?.cancel()
+                val top = top + dy
+                val bottom = top + height
+                layout(left, top.toInt(), right, bottom.toInt())
             }
+
+            setOnSingleFlingListener { _, _, _, _ ->
+                animator?.cancel()
+                if (this.y <= FINISH_DISTANCE) {
+                    finish()
+                    return@setOnSingleFlingListener true
+                }
+                animator = ValueAnimator.ofFloat(this.y, 0f)
+                animator?.addUpdateListener { animation ->
+                    (animation.animatedValue as? Float)?.let {
+                        this.y = it
+                    }
+                }
+                animator?.setTarget(this)
+                animator?.start()
+                return@setOnSingleFlingListener false
+            }
+
         }
+        binding.fullImageView.clearFocus()
+
+        binding.viewModel = viewModel
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.full_view, menu)
         return true;
     }
+
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
@@ -99,14 +127,18 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
                 when (denied.size) {
                     0 -> {
                         getImageBitmap()?.let {
+                            item.isEnabled = false
                             BitmapUtil.write(viewModel.viewId.toString(), it)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
+                                    .doOnComplete {
+                                        item.isEnabled = true
+                                    }
                                     .subscribe({
-                                        Snackbar.make(binding.root, R.string.message_save_image_success, Snackbar.LENGTH_SHORT).show()
+                                        ToastUtil.showToast(this, R.string.message_save_image_success)
                                     }, {
                                         LogUtil.e(it)
-                                        Snackbar.make(binding.root, R.string.message_save_image_failed, Snackbar.LENGTH_SHORT).show()
+                                        ToastUtil.showToast(this, R.string.message_save_image_failed)
                                     })
                         }
                     }
@@ -132,6 +164,18 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
         if (hasFocus) {
             showSystemUI()
         }
+    }
+
+    override fun showSystemUI() {
+        super.showSystemUI()
+        binding.toolbar.visibility = View.VISIBLE
+        binding.favoriteFloatingActionButton.show()
+    }
+
+    override fun hideSystemUI() {
+        super.hideSystemUI()
+        binding.toolbar.visibility = View.INVISIBLE
+        binding.favoriteFloatingActionButton.hide()
     }
 
     private fun getImageBitmap(): Bitmap? {

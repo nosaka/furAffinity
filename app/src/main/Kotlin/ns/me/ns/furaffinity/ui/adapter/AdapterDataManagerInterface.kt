@@ -1,12 +1,18 @@
 package ns.me.ns.furaffinity.ui.adapter
 
-import android.support.v7.widget.RecyclerView
 import android.view.View
 
 /**
- * [RecyclerView.Adapter]データ管理インターフェース
+ * アダプタデータ管理インターフェース
  */
-interface RecyclerViewAdapterDataManagerInterface<Data> {
+interface AdapterDataManagerInterface<Data> {
+
+    /**
+     * データ追加
+     *
+     * @param dataList  [Data]リスト
+     */
+    fun setData(dataList: Collection<Data>?)
 
     /**
      * データ追加

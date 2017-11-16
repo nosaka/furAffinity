@@ -56,14 +56,10 @@ class MainActivity : AbstractBaseActivity<MainViewModel>(), Injectable {
                 return@subscribe
             }
 
-            it.second.viewId?.let {
-                val bitmap = ((view as? ImageView)?.drawable as? BitmapDrawable)?.bitmap
-
-
-                startActivity(FullViewActivity.intent(this@MainActivity, viewId, bitmap),
-                        FullViewActivity.option(this@MainActivity, view)
-                )
-            }
+            val bitmap = ((view as? ImageView)?.drawable as? BitmapDrawable)?.bitmap
+            startActivity(FullViewActivity.intent(this@MainActivity, viewId, bitmap),
+                    FullViewActivity.option(this@MainActivity, view)
+            )
 
         }
 

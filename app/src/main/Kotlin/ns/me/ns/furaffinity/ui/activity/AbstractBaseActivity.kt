@@ -26,6 +26,20 @@ abstract class AbstractBaseActivity<out ViewModel : AbstractBaseViewModel> : App
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.onCreate()
+        viewModel.systemUISubject.subscribe {
+            val visible = window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_HIDE_NAVIGATION == 0
+            if (visible) {
+                hideSystemUI()
+            } else {
+                showSystemUI()
+            }
+        }
+        viewModel.finishActivitySubject.subscribe {
+            if (!isFinishing) {
+                finish()
+            }
+
+        }
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -63,18 +77,17 @@ abstract class AbstractBaseActivity<out ViewModel : AbstractBaseViewModel> : App
         super.onDestroy()
     }
 
-    protected fun hideSystemUI() {
+    protected open fun hideSystemUI() {
         window.decorView.clearFocus()
         window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LOW_PROFILE
-                or View.SYSTEM_UI_FLAG_IMMERSIVE)
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
     }
 
-    protected fun showSystemUI() {
+    protected open fun showSystemUI() {
         window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)

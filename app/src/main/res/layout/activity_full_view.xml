@@ -11,30 +11,36 @@
             type="ns.me.ns.furaffinity.ui.viewmodel.FullViewViewModel" />
     </data>
 
-    <LinearLayout
+    <android.support.design.widget.CoordinatorLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clickable="true"
-        android:fitsSystemWindows="true"
-        android:focusable="true"
-        android:orientation="vertical">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:title="@{viewModel.full.imageElement.alt}" />
+        android:fitsSystemWindows="true">
 
         <com.github.chrisbanes.photoview.PhotoView
             android:id="@+id/fullImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:loadPlaceHolderImage="@{viewModel.full.imageElement.src}"
+            app:onPhotoTapListener="@{viewModel.onPhotoTapListener}"
             tools:ignore="ContentDescription" />
 
-    </LinearLayout>
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="@{viewModel.full.imageElement.alt}" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/favoriteFloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/material_padding"
+            android:onClick="@{viewModel.onClickFavorite}"
+            android:src="@drawable/ic_favorite" />
+
+    </android.support.design.widget.CoordinatorLayout>
 
 </layout>

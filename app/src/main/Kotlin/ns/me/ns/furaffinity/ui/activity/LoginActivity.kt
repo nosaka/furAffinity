@@ -49,6 +49,10 @@ class LoginActivity : AbstractBaseActivity<LoginViewModel>(), Injectable {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
                 LoginManager.instance.setCookie(this@LoginActivity, url)
+                if (Constants.WEB_BASE == url) {
+                    startActivity(MainActivity.intent(this@LoginActivity))
+                    finish()
+                }
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {

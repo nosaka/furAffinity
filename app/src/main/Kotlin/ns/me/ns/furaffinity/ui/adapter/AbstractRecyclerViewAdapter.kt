@@ -1,11 +1,12 @@
 package ns.me.ns.furaffinity.ui.adapter
 
 import android.content.Context
+import android.databinding.ObservableArrayList
+import android.databinding.ObservableList
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import ns.me.ns.furaffinity.ui.adapter.recycler.decoration.ViewTypeDispatcher
 import java.util.*
 
 /**
@@ -13,8 +14,8 @@ import java.util.*
  */
 abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
         RecyclerView.Adapter<AbstractRecyclerViewAdapter.ViewHolder>(),
-        RecyclerViewAdapterDataManagerInterface<Data>,
-        ViewTypeDispatcher {
+        AdapterDataManagerInterface<Data>,
+        RecyclerViewPartsInterface {
 
     companion object {
 
@@ -35,35 +36,30 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
 
     }
 
+    override var displayHeader: Boolean = false
+
+    override var displayFooter: Boolean = false
+
+
     /**
      * ビューホルダ
      */
     abstract class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
-
     /**
      * [LayoutInflater]
      */
-    protected val inflater: LayoutInflater = LayoutInflater.from(context)
-
-    /**
-     * ヘッダ表示是非
-     *
-     * @return 表示是非
-     */
-    protected var displayHeader: Boolean = false
-
-    /**
-     * フッタ表示是非
-     *
-     * @return 表示是非
-     */
-    protected var displayFooter: Boolean = false
+    private val inflater: LayoutInflater = LayoutInflater.from(context)
 
     /**
      * データリスト
      */
-    private val mDataList: MutableList<Data> = ArrayList()
+    private var items: ObservableList<Data> = ObservableArrayList()
+
+    /**
+     * [WeakReferenceOnListChangedCallback]
+     */
+    private val onListChangedCallback: WeakReferenceOnListChangedCallback<Data> = WeakReferenceOnListChangedCallback(this)
 
     /**
      * データ要素押下リスナ
@@ -71,6 +67,16 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
      * @param <Data> データ要素
      */
     var onItemClick: ((adapter: AbstractRecyclerViewAdapter<Data>, data: Data, clickView: View?) -> Unit)? = null
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView?) {
+        super.onAttachedToRecyclerView(recyclerView)
+        items.addOnListChangedCallback(onListChangedCallback)
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView?) {
+        items.removeOnListChangedCallback(onListChangedCallback)
+        super.onDetachedFromRecyclerView(recyclerView)
+    }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder? {
         return when (viewType) {
@@ -92,13 +98,15 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
                     // ヘッダが存在する場合はポジションを1減算
                     index--
                 }
-                bindDataViewHolder(getData(index), viewHolder, viewType)
+                getData(index)?.let {
+                    bindDataViewHolder(it, viewHolder, viewType)
+                }
             }
         }
     }
 
     override fun getItemCount(): Int {
-        var count = mDataList.size
+        var count = items.size
         if (displayHeader) {
             count++
         }
@@ -243,6 +251,7 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
     @Suppress("MemberVisibilityCanPrivate")
     fun setHeaderDisplay(display: Boolean) {
         displayHeader = display
+        notifyItemChanged(0)
     }
 
     /**
@@ -253,39 +262,51 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
     @Suppress("MemberVisibilityCanPrivate")
     fun setFooterDisplay(display: Boolean) {
         displayFooter = display
+        notifyItemChanged(itemCount - 1)
     }
 
-    override fun getData(position: Int): Data {
-        return mDataList[position]
+    /// AdapterDataManagerInterface
+
+    override fun setData(dataList: Collection<Data>?) {
+        if (items == dataList) {
+            return
+        }
+        if (dataList is ObservableList) {
+            items = dataList
+        } else if (dataList != null) {
+            items.clear()
+            items.addAll(dataList)
+        } else {
+            items = ObservableArrayList()
+        }
+
+    }
+
+    override fun getData(position: Int): Data? {
+        if (position < 0 || position > dataCount - 1) return null
+        return items[position]
     }
 
     override fun addData(data: Data) {
-        val insertIndex = mDataList.size
-        mDataList.add(data)
-        notifyItemInserted(insertIndex)
+        items.add(data)
     }
 
     override fun addDataAll(dataList: Collection<Data>) {
         if (dataList.isEmpty()) return
-        val insertIndex = mDataList.size
-        mDataList.addAll(dataList)
-        notifyItemInserted(insertIndex)
+        items.addAll(dataList)
     }
 
     override fun addDataAll(vararg dataList: Data) {
         if (dataList.isEmpty()) return
-        val insertIndex = mDataList.size
-        mDataList.addAll(Arrays.asList(*dataList))
-        notifyItemInserted(insertIndex)
+        items.addAll(Arrays.asList(*dataList))
     }
 
     override fun clear() {
-        mDataList.clear()
-        notifyDataSetChanged()
+        items.clear()
     }
 
     override val dataCount: Int
-        get() = mDataList.size
+        get() = items.size
 
     override fun getData(itemView: View): Data? {
         val position = getPosition(itemView)
@@ -296,6 +317,8 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
         } else null
     }
 
+    /// RecyclerViewPartsInterface
+
     override fun isFooter(position: Int): Boolean {
         return isPositionFooter(position)
     }
@@ -304,8 +327,5 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
         return isPositionHeader(position)
     }
 
-    fun getPosition(itemView: View): Int {
-        return (itemView.layoutParams as RecyclerView.LayoutParams).viewAdapterPosition
-    }
 
 }

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import io.reactivex.subjects.PublishSubject
 import ns.me.ns.furaffinity.R
+import ns.me.ns.furaffinity.databinding.ListItemFooterBinding
 import ns.me.ns.furaffinity.databinding.ListItemImageGalleryContentsBinding
 import ns.me.ns.furaffinity.datasouce.web.model.impl.entity.ViewElement
 import ns.me.ns.furaffinity.ui.adapter.AbstractRecyclerViewAdapter
@@ -14,7 +15,7 @@ import ns.me.ns.furaffinity.ui.adapter.AbstractRecyclerViewAdapter
 /**
  * 画像ギャラリAdapter
  */
-class ImageGalleryAdapter(context: Context) : AbstractRecyclerViewAdapter<ImageGalleryAdapter.ViewModel>(context) {
+class ImageGalleryAdapter(context: Context) : AbstractRecyclerViewAdapter<ImageGalleryAdapter.ContentsViewModel>(context) {
 
     init {
         setFooterDisplay(true)
@@ -29,23 +30,43 @@ class ImageGalleryAdapter(context: Context) : AbstractRecyclerViewAdapter<ImageG
 
     }
 
-    class ViewModel(viewElement: ViewElement) : ViewElement() {
+    /**
+     * ローディングエラー是非
+     */
+    var loadingError: Boolean = false
+        set(value) {
+            field = value
+            setFooterDisplay(true)
+        }
+
+    /**
+     * リロード要求
+     */
+    var onRequestReload: (() -> Unit)? = null
+
+    /**
+     * データコンテンツViewModel
+     */
+    class ContentsViewModel(value: ViewElement) : ViewElement() {
         init {
-            viewId = viewElement.viewId
-            name = viewElement.name
-            href = viewElement.href
-            imageElement = viewElement.imageElement
-            userElement = viewElement.userElement
+            viewId = value.viewId
+            name = value.name
+            href = value.href
+
+            imageElement.src = value.imageElement.src
+            imageElement.alt = value.imageElement.alt
+
         }
 
-        val onItemClickPublishSubject: PublishSubject<ImageGalleryAdapter.ViewModel>
-                = PublishSubject.create<ImageGalleryAdapter.ViewModel>()
+        val onItemClickPublishSubject: PublishSubject<ImageGalleryAdapter.ContentsViewModel>
+                = PublishSubject.create<ImageGalleryAdapter.ContentsViewModel>()
 
-        val getOnItemSelected = View.OnClickListener { _ ->
-            onItemClickPublishSubject.onNext(this)
-        }
+        val onItemSelected: View.OnClickListener = View.OnClickListener { onItemClickPublishSubject.onNext(this@ContentsViewModel) }
     }
 
+    /**
+     * データコンテンツ[AbstractRecyclerViewAdapter.ViewHolder]
+     */
     class ContentsViewHolder(itemView: View) : AbstractRecyclerViewAdapter.ViewHolder(itemView) {
         val binding: ListItemImageGalleryContentsBinding = DataBindingUtil.bind(itemView)
 
@@ -56,7 +77,12 @@ class ImageGalleryAdapter(context: Context) : AbstractRecyclerViewAdapter<ImageG
         }
     }
 
-    class FooterHolder(itemView: View) : AbstractRecyclerViewAdapter.ViewHolder(itemView)
+    /**
+     * フッター[AbstractRecyclerViewAdapter.ViewHolder]
+     */
+    class FooterHolder(itemView: View) : AbstractRecyclerViewAdapter.ViewHolder(itemView) {
+        val binding: ListItemFooterBinding = DataBindingUtil.bind(itemView)
+    }
 
     override fun dispatchDataViewType(position: Int): Int = TYPE_DATA_CONTENTS
 
@@ -67,7 +93,7 @@ class ImageGalleryAdapter(context: Context) : AbstractRecyclerViewAdapter<ImageG
         }
     }
 
-    override fun bindDataViewHolder(data: ViewModel, viewHolder: AbstractRecyclerViewAdapter.ViewHolder, dataViewType: Int) {
+    override fun bindDataViewHolder(data: ContentsViewModel, viewHolder: AbstractRecyclerViewAdapter.ViewHolder, dataViewType: Int) {
         when (dataViewType) {
             TYPE_DATA_CONTENTS -> {
                 (viewHolder as? ContentsViewHolder)?.let {
@@ -77,6 +103,17 @@ class ImageGalleryAdapter(context: Context) : AbstractRecyclerViewAdapter<ImageG
                         onItemClick?.invoke(this@ImageGalleryAdapter, it, view)
                     }
                 }
+            }
+        }
+    }
+
+    override fun bindFooterViewHolder(viewHolder: ViewHolder) {
+        (viewHolder as? FooterHolder)?.let {
+            it.binding.loadingError = loadingError
+            it.binding.onRetryClickListener = View.OnClickListener { _ ->
+                loadingError = false
+                it.binding.loadingError = loadingError
+                onRequestReload?.invoke()
             }
         }
     }

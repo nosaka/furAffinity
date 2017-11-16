@@ -1,9 +1,12 @@
 <resources>
     <string name="app_name">FurAffinity</string>
 
+    <string name="action_retry">リトライ</string>
     <string name="action_save">保存</string>
     <string name="action_share">共有</string>
 
     <string name="message_save_image_success">画像を保存しました</string>
     <string name="message_save_image_failed">画像の保存に失敗しました</string>
+
+    <string name="message_add_favorite">お気に入りに追加しました</string>
 </resources>

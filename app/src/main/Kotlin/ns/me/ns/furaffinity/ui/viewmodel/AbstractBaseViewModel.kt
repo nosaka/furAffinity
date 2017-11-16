@@ -15,6 +15,10 @@ abstract class AbstractBaseViewModel(application: Application) : AndroidViewMode
 
     val startActivitySubject: PublishSubject<Intent> = PublishSubject.create()
 
+    val finishActivitySubject: PublishSubject<Unit> = PublishSubject.create()
+
+    val systemUISubject: PublishSubject<Unit> = PublishSubject.create()
+
     val executePendingBindingsSubject: PublishSubject<Unit> = PublishSubject.create()
 
 }
