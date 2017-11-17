@@ -13,8 +13,8 @@ import android.webkit.WebViewClient
 import ns.me.ns.furaffinity.Constants
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.ActivityLoginBinding
-import ns.me.ns.furaffinity.datasouce.web.AppWebApiService
 import ns.me.ns.furaffinity.di.Injectable
+import ns.me.ns.furaffinity.ds.remote.AppWebApiService
 import ns.me.ns.furaffinity.ui.viewmodel.LoginViewModel
 import ns.me.ns.furaffinity.util.LoginManager
 import javax.inject.Inject
@@ -43,8 +43,6 @@ class LoginActivity : AbstractBaseActivity<LoginViewModel>(), Injectable {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding.webView.settings.javaScriptEnabled = true
-        binding.webView.settings.loadWithOverviewMode = true
-        binding.webView.settings.useWideViewPort = true
         binding.webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)

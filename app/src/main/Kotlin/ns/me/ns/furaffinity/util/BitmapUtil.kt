@@ -8,18 +8,56 @@ import android.graphics.BitmapFactory.Options
 import android.graphics.Matrix
 import android.net.Uri
 import android.os.Environment
+import android.util.LruCache
 import io.reactivex.Completable
 import io.reactivex.Single
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.InputStream
+import java.io.*
 
 
 /**
  * Bitmap画像操作Util
  */
 object BitmapUtil {
+
+    private val CACHE_MAX_SIZE = (Runtime.getRuntime().maxMemory() / 1024).toInt()
+
+    private val cache: LruCache<String, Bitmap> by lazy {
+        LruCache<String, Bitmap>(CACHE_MAX_SIZE)
+    }
+
+    /**
+     * キャッシュ
+     * @param key キー
+     * @param bitmap [Bitmap]
+     */
+    fun cache(key: String?, bitmap: Bitmap?) {
+        if (key == null || bitmap == null) return
+        cache.put(key, bitmap)
+    }
+
+    /**
+     * @param key キー
+     * @return [Bitmap]
+     */
+    fun cache(key: String?): Bitmap? = cache.get(key)
+
+    /**
+     * Bitmapバイト配列デコード処理
+     */
+    fun decodeByteArray(bitmap: Bitmap): ByteArray? {
+
+        val stream = ByteArrayOutputStream()
+        try {
+            stream.use {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                return stream.toByteArray()
+            }
+        } catch (e: Exception) {
+            LogUtil.e(e)
+        }
+        return null
+
+    }
 
     /**
      * ファイルパスからBitmapを取得

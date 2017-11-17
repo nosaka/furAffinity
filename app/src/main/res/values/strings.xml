@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">FurAffinity</string>
 
+    <string name="action_home">ホーム</string>
+    <string name="action_submissions">投稿</string>
+    <string name="action_favorite">お気に入り</string>
     <string name="action_retry">リトライ</string>
     <string name="action_save">保存</string>
     <string name="action_share">共有</string>

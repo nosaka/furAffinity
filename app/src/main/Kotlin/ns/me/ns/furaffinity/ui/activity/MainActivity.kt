@@ -5,14 +5,12 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.support.v7.widget.GridLayoutManager
-import android.transition.Fade
-import android.widget.ImageView
+import android.support.v4.app.Fragment
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.ActivityMainBinding
 import ns.me.ns.furaffinity.di.Injectable
+import ns.me.ns.furaffinity.ui.fragment.SubmissionsFragment
 import ns.me.ns.furaffinity.ui.viewmodel.MainViewModel
 import javax.inject.Inject
 
@@ -33,36 +31,22 @@ class MainActivity : AbstractBaseActivity<MainViewModel>(), Injectable {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.exitTransition = Fade()
-        window.enterTransition = Fade()
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.viewModel = viewModel
-        (binding.imageGalleryRecyclerView.layoutManager as? GridLayoutManager)?.let {
-            it.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int {
-                    return if (viewModel.imageGalleryAdapter.isFooter(position) || viewModel.imageGalleryAdapter.isHeader(position)) it.spanCount else 1
-                }
-            }
-        }
-        binding.imageGalleryRecyclerView.adapter = viewModel.imageGalleryAdapter
-        viewModel.startActivitySubject.subscribe {
-            startActivity(it)
-        }
-        viewModel.fullViewSubject.subscribe {
-            val view = it.first
-            val viewId = it.second.viewId
-            if (view == null || viewId == null) {
-                return@subscribe
-            }
 
-            val bitmap = ((view as? ImageView)?.drawable as? BitmapDrawable)?.bitmap
-            startActivity(FullViewActivity.intent(this@MainActivity, viewId, bitmap),
-                    FullViewActivity.option(this@MainActivity, view)
-            )
+        replaceContainer(SubmissionsFragment.instance())
 
+        viewModel.navigationItemSubject.subscribe {
+            replaceContainer(it)
         }
+    }
 
+    private fun replaceContainer(fragment: Fragment) {
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, fragment)
+                .commitNow()
     }
 
 }

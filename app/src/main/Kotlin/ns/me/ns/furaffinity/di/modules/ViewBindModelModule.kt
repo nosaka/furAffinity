@@ -7,9 +7,7 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 import ns.me.ns.furaffinity.di.AppViewModelFactory
 import ns.me.ns.furaffinity.di.ViewModelKey
-import ns.me.ns.furaffinity.ui.viewmodel.FullViewViewModel
-import ns.me.ns.furaffinity.ui.viewmodel.LoginViewModel
-import ns.me.ns.furaffinity.ui.viewmodel.MainViewModel
+import ns.me.ns.furaffinity.ui.viewmodel.*
 
 /**
  *
@@ -35,6 +33,15 @@ internal abstract class ViewBindModelModule {
     @ViewModelKey(FullViewViewModel::class)
     abstract fun bindFullViewViewModel(viewModel: FullViewViewModel): ViewModel
 
+    @Binds
+    @IntoMap
+    @ViewModelKey(SubmissionsViewModel::class)
+    abstract fun bindSubmissionsViewModel(viewModel: SubmissionsViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(FavoriteViewModel::class)
+    abstract fun bindFavoriteViewModel(viewModel: FavoriteViewModel): ViewModel
 
 
 }

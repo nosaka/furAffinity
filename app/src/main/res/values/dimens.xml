@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="grid_divider">4dp</dimen>
+    <dimen name="linear_divider">16dp</dimen>
     <dimen name="material_padding">16dp</dimen>
 
     <dimen name="material_text_button">14sp</dimen>

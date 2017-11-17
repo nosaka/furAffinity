@@ -9,7 +9,7 @@ import io.reactivex.subjects.PublishSubject
 /**
  * 抽象基底ViewModel
  */
-abstract class AbstractBaseViewModel(application: Application) : AndroidViewModel(application), ViewModelLifecycle {
+abstract class AbstractBaseViewModel(application: Application) : AndroidViewModel(application) {
 
     protected val context = application
 
@@ -18,7 +18,5 @@ abstract class AbstractBaseViewModel(application: Application) : AndroidViewMode
     val finishActivitySubject: PublishSubject<Unit> = PublishSubject.create()
 
     val systemUISubject: PublishSubject<Unit> = PublishSubject.create()
-
-    val executePendingBindingsSubject: PublishSubject<Unit> = PublishSubject.create()
 
 }

@@ -17,20 +17,21 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
 
-        <com.github.chrisbanes.photoview.PhotoView
-            android:id="@+id/fullImageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
-            app:loadPlaceHolderImage="@{viewModel.full.imageElement.src}"
-            app:onPhotoTapListener="@{viewModel.onPhotoTapListener}"
-            tools:ignore="ContentDescription" />
-
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="@{viewModel.full.imageElement.alt}" />
+
+        <com.github.chrisbanes.photoview.PhotoView
+            android:id="@+id/fullImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:fitsSystemWindows="true"
+            android:src="@{viewModel.image}"
+            app:onPhotoTapListener="@{viewModel.onPhotoTapListener}"
+            tools:ignore="ContentDescription" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/favoriteFloatingActionButton"
@@ -39,7 +40,7 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/material_padding"
             android:onClick="@{viewModel.onClickFavorite}"
-            android:src="@drawable/ic_favorite" />
+            android:src="@{viewModel.favorite != null ? @drawable/ic_favorite : @drawable/ic_action_save}" />
 
     </android.support.design.widget.CoordinatorLayout>
 

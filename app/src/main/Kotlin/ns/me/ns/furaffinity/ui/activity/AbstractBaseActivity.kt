@@ -1,7 +1,6 @@
 package ns.me.ns.furaffinity.ui.activity
 
 import android.arch.lifecycle.LifecycleRegistry
-import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -25,7 +24,6 @@ abstract class AbstractBaseActivity<out ViewModel : AbstractBaseViewModel> : App
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.onCreate()
         viewModel.systemUISubject.subscribe {
             val visible = window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_HIDE_NAVIGATION == 0
             if (visible) {
@@ -41,42 +39,7 @@ abstract class AbstractBaseActivity<out ViewModel : AbstractBaseViewModel> : App
 
         }
     }
-
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
-        viewModel.onPostCreate()
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration?) {
-        super.onConfigurationChanged(newConfig)
-        viewModel.onConfigurationChanged()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.onResume()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.onStart()
-    }
-
-    override fun onStop() {
-        viewModel.onStop()
-        super.onStop()
-    }
-
-    override fun onPause() {
-        viewModel.onPause()
-        super.onPause()
-    }
-
-    override fun onDestroy() {
-        viewModel.onDestroy()
-        super.onDestroy()
-    }
-
+    
     protected open fun hideSystemUI() {
         window.decorView.clearFocus()
         window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
