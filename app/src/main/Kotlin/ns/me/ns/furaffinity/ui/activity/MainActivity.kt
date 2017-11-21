@@ -7,6 +7,8 @@ import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.view.Menu
+import android.view.MenuItem
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.ActivityMainBinding
 import ns.me.ns.furaffinity.di.Injectable
@@ -31,15 +33,31 @@ class MainActivity : AbstractBaseActivity<MainViewModel>(), Injectable {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.viewModel = viewModel
+
+        setSupportActionBar(binding.toolbar)
 
         replaceContainer(SubmissionsFragment.instance())
 
         viewModel.navigationItemSubject.subscribe {
             replaceContainer(it)
+        }.also { disposer.add(it) }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.debug_main, menu)
+        return true
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.debug -> {
+                startActivity(DebugActivity.intent(this@MainActivity))
+            }
         }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun replaceContainer(fragment: Fragment) {

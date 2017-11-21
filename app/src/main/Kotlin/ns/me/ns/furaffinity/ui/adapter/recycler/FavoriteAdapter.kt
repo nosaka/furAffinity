@@ -5,7 +5,6 @@ import android.databinding.DataBindingUtil
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import io.reactivex.subjects.PublishSubject
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.ListItemFavoriteContentsBinding
 import ns.me.ns.furaffinity.ds.local.model.Favorite
@@ -15,10 +14,6 @@ import ns.me.ns.furaffinity.ui.adapter.AbstractRecyclerViewAdapter
  * Submissions Adapter
  */
 class FavoriteAdapter(context: Context) : AbstractRecyclerViewAdapter<FavoriteAdapter.ContentsViewModel>(context) {
-
-    init {
-        setFooterDisplay(true)
-    }
 
     companion object {
 
@@ -40,10 +35,7 @@ class FavoriteAdapter(context: Context) : AbstractRecyclerViewAdapter<FavoriteAd
             alt = value.alt
         }
 
-        val onItemClickPublishSubject: PublishSubject<ContentsViewModel>
-                = PublishSubject.create<ContentsViewModel>()
-
-        val onItemSelected: View.OnClickListener = View.OnClickListener { onItemClickPublishSubject.onNext(this@ContentsViewModel) }
+        var onItemSelected: View.OnClickListener? = null
     }
 
     /**
@@ -67,10 +59,8 @@ class FavoriteAdapter(context: Context) : AbstractRecyclerViewAdapter<FavoriteAd
             TYPE_DATA_CONTENTS -> {
                 (viewHolder as? ContentsViewHolder)?.let {
                     val view = it.binding.imageView
+                    data.onItemSelected = View.OnClickListener { onItemClickPublishSubject.onNext(OnClickItem(data, view)) }
                     it.binding.viewModel = data
-                    it.binding.viewModel.onItemClickPublishSubject.subscribe {
-                        onItemClick?.invoke(this@FavoriteAdapter, it, view)
-                    }
                 }
             }
         }

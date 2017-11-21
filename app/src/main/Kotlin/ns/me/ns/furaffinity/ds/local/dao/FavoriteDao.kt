@@ -19,6 +19,9 @@ interface FavoriteDao {
     @Delete
     fun delete(value: Favorite)
 
+    @Query("DELETE FROM Favorite WHERE VIEW_ID = :viewId")
+    fun delete(viewId: Int)
+
     @Query("DELETE FROM Favorite")
     fun deleteAll()
 

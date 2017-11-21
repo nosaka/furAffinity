@@ -22,6 +22,7 @@ import javax.inject.Inject
  *
  */
 class SubmissionsFragment() : AbstractBaseFragment<SubmissionsViewModel>(), Injectable {
+
     companion object {
         fun instance() = SubmissionsFragment()
     }
@@ -37,8 +38,6 @@ class SubmissionsFragment() : AbstractBaseFragment<SubmissionsViewModel>(), Inje
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_submissions, container, false)
-        binding.viewModel = viewModel
-
         return binding.root
     }
 
@@ -48,31 +47,25 @@ class SubmissionsFragment() : AbstractBaseFragment<SubmissionsViewModel>(), Inje
         (binding.recyclerView.layoutManager as? GridLayoutManager)?.let {
             it.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
-                    return if (viewModel.submissionsAdapter.isFooter(position) || viewModel.submissionsAdapter.isHeader(position)) it.spanCount else 1
+                    return if (viewModel.submissionsAdapter.isHeader(position)) it.spanCount else 1
                 }
             }
         }
         binding.recyclerView.adapter = viewModel.submissionsAdapter
-        viewModel.startActivitySubject.subscribe {
-            startActivity(it)
-        }
-        viewModel.fullViewSubject.subscribe {
-            val view = it.first
-            val viewId = it.second.viewId
-            if (view == null || viewId == null) {
-                return@subscribe
-            }
 
-            val bitmap = ((view as? ImageView)?.drawable as? BitmapDrawable)?.bitmap
+        viewModel.adapterOnItemClickSubject.subscribe {
+            val viewId = it.data.viewId ?: return@subscribe
+
+            val bitmap = ((it.view as? ImageView)?.drawable as? BitmapDrawable)?.bitmap
             val keyCache = bitmap?.generationId?.toString()
-            BitmapUtil.cache(keyCache, bitmap)
+            keyCache?.let {
+                BitmapUtil.cacheMemory(it, bitmap)
+            }
             startActivity(FullViewActivity.intent(activity, viewId, keyCache),
-                    FullViewActivity.option(activity, view)
+                    FullViewActivity.option(activity, it.view)
             )
-
-        }
+        }.also { disposer.add(it) }
 
     }
-
 
 }

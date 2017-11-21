@@ -2,7 +2,6 @@ package ns.me.ns.furaffinity.ui.adapter
 
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import ns.me.ns.furaffinity.util.LogUtil
 
 /**
  *
@@ -24,7 +23,7 @@ abstract class OnEndScrollListener : RecyclerView.OnScrollListener() {
         }
         if (loading) {
             if (totalItemCount > previousTotal) {
-                loading = false;
+                loading = false
                 previousTotal = totalItemCount;
             }
         }
@@ -33,11 +32,6 @@ abstract class OnEndScrollListener : RecyclerView.OnScrollListener() {
             loading = true
             onEndScroll(recyclerView, dx, dy)
         }
-        LogUtil.d("@@@@","firstVisibleItem=$firstVisibleItem, " +
-                "visibleItemCount=$visibleItemCount, " +
-                "totalItemCount=$totalItemCount, " +
-                "previousTotal=$previousTotal, " +
-                "loading=$loading")
     }
 
     abstract fun onEndScroll(recyclerView: RecyclerView, dx: Int, dy: Int)

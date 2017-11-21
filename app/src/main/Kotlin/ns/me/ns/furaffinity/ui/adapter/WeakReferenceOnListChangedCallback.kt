@@ -20,15 +20,16 @@ class WeakReferenceOnListChangedCallback<T>(adapter: AbstractRecyclerViewAdapter
     }
 
     override fun onItemRangeChanged(sender: ObservableList<T>, positionStart: Int, itemCount: Int) {
-        adapterReference.get()?.notifyItemRangeChanged(positionStart, itemCount - 1)
+        adapterReference.get()?.notifyItemRangeChanged(positionStart, itemCount)
     }
 
     override fun onItemRangeInserted(sender: ObservableList<T>, positionStart: Int, itemCount: Int) {
-        adapterReference.get()?.notifyItemRangeInserted(positionStart, itemCount - 1)
+        // TODO : adapterReference.get()?.notifyItemRangeInserted(positionStart, itemCount) だと勝手にスクロールする。要調査
+        adapterReference.get()?.notifyItemInserted(positionStart)
     }
 
     override fun onItemRangeRemoved(sender: ObservableList<T>, positionStart: Int, itemCount: Int) {
-        adapterReference.get()?.notifyItemRangeRemoved(positionStart, itemCount - 1)
+        adapterReference.get()?.notifyItemRangeRemoved(positionStart, itemCount)
     }
 
 }

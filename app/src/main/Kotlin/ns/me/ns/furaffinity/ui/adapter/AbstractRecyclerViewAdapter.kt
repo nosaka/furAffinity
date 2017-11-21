@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import io.reactivex.subjects.PublishSubject
 import java.util.*
 
 /**
@@ -36,10 +37,11 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
 
     }
 
+    data class OnClickItem<out Data>(val data: Data, val view: View)
+
     override var displayHeader: Boolean = false
 
     override var displayFooter: Boolean = false
-
 
     /**
      * ビューホルダ
@@ -54,7 +56,7 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
     /**
      * データリスト
      */
-    private var items: ObservableList<Data> = ObservableArrayList()
+    private var items: ObservableList<Data> = ObservableArrayList<Data>()
 
     /**
      * [WeakReferenceOnListChangedCallback]
@@ -62,11 +64,10 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
     private val onListChangedCallback: WeakReferenceOnListChangedCallback<Data> = WeakReferenceOnListChangedCallback(this)
 
     /**
-     * データ要素押下リスナ
-     *
-     * @param <Data> データ要素
+     * データ要素押下[PublishSubject]
      */
-    var onItemClick: ((adapter: AbstractRecyclerViewAdapter<Data>, data: Data, clickView: View?) -> Unit)? = null
+    val onItemClickPublishSubject: PublishSubject<OnClickItem<Data>>
+            = PublishSubject.create()
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView?) {
         super.onAttachedToRecyclerView(recyclerView)
@@ -251,7 +252,12 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
     @Suppress("MemberVisibilityCanPrivate")
     fun setHeaderDisplay(display: Boolean) {
         displayHeader = display
-        notifyItemChanged(0)
+        if (display) {
+            notifyItemChanged(0)
+        } else {
+            notifyItemRemoved(0)
+        }
+
     }
 
     /**
@@ -262,10 +268,13 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
     @Suppress("MemberVisibilityCanPrivate")
     fun setFooterDisplay(display: Boolean) {
         displayFooter = display
-        notifyItemChanged(itemCount - 1)
-    }
+        if (display) {
+            notifyItemChanged(itemCount - 1)
+        } else {
+            notifyItemRemoved(itemCount - 1)
+        }
 
-    /// AdapterDataManagerInterface
+    }
 
     override fun setData(dataList: Collection<Data>?) {
         if (items == dataList) {
@@ -316,8 +325,6 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
             getData(position - if (displayHeader) 1 else 0)
         } else null
     }
-
-    /// RecyclerViewPartsInterface
 
     override fun isFooter(position: Int): Boolean {
         return isPositionFooter(position)

@@ -21,6 +21,7 @@ import javax.inject.Inject
  *
  */
 class FavoriteFragment() : AbstractBaseFragment<FavoriteViewModel>(), Injectable {
+
     companion object {
         fun instance() = FavoriteFragment()
     }
@@ -36,8 +37,6 @@ class FavoriteFragment() : AbstractBaseFragment<FavoriteViewModel>(), Injectable
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_favorite, container, false)
-        binding.viewModel = viewModel
-
         return binding.root
     }
 
@@ -45,26 +44,22 @@ class FavoriteFragment() : AbstractBaseFragment<FavoriteViewModel>(), Injectable
         super.onActivityCreated(savedInstanceState)
         binding.viewModel = viewModel
         binding.recyclerView.adapter = viewModel.favoriteAdapter
-        viewModel.startActivitySubject.subscribe {
-            startActivity(it)
-        }
-        viewModel.fullViewSubject.subscribe {
-            val view = it.first
-            val viewId = it.second.viewId
-            if (view == null) {
-                return@subscribe
-            }
-            val bitmap = ((view as? ImageView)?.drawable as? BitmapDrawable)?.bitmap
+        viewModel.adapterOnItemClickSubject.subscribe {
+            val bitmap = ((it.view as? ImageView)?.drawable as? BitmapDrawable)?.bitmap
             val keyCache = bitmap?.generationId?.toString()
-            BitmapUtil.cache(keyCache, bitmap)
-
-            startActivity(FullViewActivity.intent(activity, viewId, keyCache),
-                    FullViewActivity.option(activity, view)
+            keyCache?.let {
+                BitmapUtil.cacheMemory(it, bitmap)
+            }
+            startActivity(FullViewActivity.intent(activity, it.data.viewId, keyCache),
+                    FullViewActivity.option(activity, it.view)
             )
-
-        }
+        }.also { disposer.add(it) }
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshAdapter()
+    }
 
 }

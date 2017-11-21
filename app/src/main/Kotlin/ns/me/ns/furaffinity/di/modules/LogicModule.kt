@@ -3,7 +3,7 @@ package ns.me.ns.furaffinity.di.modules
 import dagger.Module
 import dagger.Provides
 import ns.me.ns.furaffinity.ds.local.dao.FavoriteDao
-import ns.me.ns.furaffinity.pacakge.FavoriteLogic
+import ns.me.ns.furaffinity.logic.FavoriteLogic
 import javax.inject.Singleton
 
 /**

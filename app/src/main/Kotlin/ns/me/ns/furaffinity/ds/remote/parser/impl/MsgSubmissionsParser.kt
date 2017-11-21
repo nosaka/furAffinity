@@ -15,7 +15,6 @@ class MsgSubmissionsParser : JsoupParser<MsgSubmissions> {
 
     companion object {
         val pathMoreRegex = "/msg/submissions/(.*)".toRegex()
-        val viewIdRegex = "/view/(.*)/".toRegex()
     }
 
     @Suppress("UNCHECKED_CAST")

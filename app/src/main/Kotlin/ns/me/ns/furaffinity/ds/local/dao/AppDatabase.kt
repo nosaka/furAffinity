@@ -5,11 +5,12 @@ import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 import ns.me.ns.furaffinity.ds.local.model.Favorite
+import ns.me.ns.furaffinity.ds.local.model.Submission
 
 /**
  *
  */
-@Database(entities = arrayOf(Favorite::class), version = 1, exportSchema = false)
+@Database(entities = arrayOf(Submission::class, Favorite::class), version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     companion object {
@@ -32,4 +33,6 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     abstract fun favoriteDao(): FavoriteDao
+
+    abstract fun submissionDao(): SubmissionDao
 }

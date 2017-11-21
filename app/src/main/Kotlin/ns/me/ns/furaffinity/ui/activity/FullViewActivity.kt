@@ -8,16 +8,13 @@ import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v7.graphics.Palette
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import ns.me.ns.furaffinity.Constants
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.checkSelfPermission
@@ -25,8 +22,6 @@ import ns.me.ns.furaffinity.databinding.ActivityFullViewBinding
 import ns.me.ns.furaffinity.di.Injectable
 import ns.me.ns.furaffinity.ui.viewmodel.FullViewViewModel
 import ns.me.ns.furaffinity.util.BitmapUtil
-import ns.me.ns.furaffinity.util.LogUtil
-import ns.me.ns.furaffinity.util.ToastUtil
 import javax.inject.Inject
 
 
@@ -41,15 +36,14 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
         private const val KEY_SHARED_IMAGE = "imageElement"
 
         // Y軸最低スワイプ距離
-        private const val FINISH_DISTANCE = -320
+        private const val FINISH_DISTANCE = -240
 
         fun intent(context: Context, viewId: Int, cacheKeyBitmap: String?) = Intent(context, FullViewActivity::class.java).apply {
             putExtra(KEY_BUNDLE_VIEW_ID, viewId)
             putExtra(KEY_BUNDLE_CACHE_KEY_BITMAP, cacheKeyBitmap)
         }
 
-        //        fun option(activity: Activity, view: View): Bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, view, KEY_SHARED_IMAGE).toBundle()
-        fun option(activity: Activity, view: View): Bundle = Bundle()
+        fun option(activity: Activity, view: View): Bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, view, KEY_SHARED_IMAGE).toBundle()
     }
 
     @Inject
@@ -66,13 +60,20 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_full_view)
-        setSupportActionBar(binding.toolbar)
+        binding.viewModel = viewModel
 
-        val cacheKeyBitmap = intent.getStringExtra(KEY_BUNDLE_CACHE_KEY_BITMAP)
-        viewModel.image.set(BitmapDrawable(null, BitmapUtil.cache(cacheKeyBitmap)))
+        setSupportActionBar(binding.toolbar)
 
         binding.fullImageView.scaleType = ImageView.ScaleType.FIT_CENTER
         binding.fullImageView.transitionName = KEY_SHARED_IMAGE
+
+        viewModel.imageChangeSubject.subscribe {
+            Palette.from(it).generate().dominantSwatch?.let {
+                binding.container.setBackgroundColor(it.rgb)
+                binding.toolbar.setTitleTextColor(it.titleTextColor)
+            }
+        }.also { disposer.add(it) }
+
 
         binding.fullImageView.apply {
             var animator: ValueAnimator? = null
@@ -102,21 +103,16 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
             }
 
         }
-        viewModel.getImageBitmap()?.let {
-            Palette.from(it).generate().dominantSwatch?.let {
-                binding.container.setBackgroundColor(it.rgb)
-                binding.toolbar.setBackgroundColor(it.rgb)
-                binding.toolbar.setTitleTextColor(it.titleTextColor)
-            }
-        }
 
-        binding.viewModel = viewModel
+        intent.getStringExtra(KEY_BUNDLE_CACHE_KEY_BITMAP)?.let {
+            viewModel.image.set(BitmapDrawable(null, BitmapUtil.cacheMemory(it)))
+        }
 
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.full_view, menu)
-        return true;
+        return true
     }
 
 
@@ -126,21 +122,7 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
                 val denied = checkSelfPermission(*Constants.PERMISSION_FILE_SAVE)
                 when (denied.size) {
                     0 -> {
-                        viewModel.getImageBitmap()?.let {
-                            item.isEnabled = false
-                            BitmapUtil.write(viewModel.viewId.toString(), it)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .doOnComplete {
-                                        item.isEnabled = true
-                                    }
-                                    .subscribe({
-                                        ToastUtil.showToast(this, R.string.message_save_image_success)
-                                    }, {
-                                        LogUtil.e(it)
-                                        ToastUtil.showToast(this, R.string.message_save_image_failed)
-                                    })
-                        }
+                        viewModel.saveImage()
                     }
                     else -> {
                         requestPermissions(Constants.PERMISSION_FILE_SAVE, REQUEST_PERMISSION)
@@ -148,12 +130,7 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
                 }
             }
             R.id.share -> {
-                viewModel.getImageBitmap()?.let {
-                    val uri = MediaStore.Images.Media.insertImage(contentResolver, it, "name", null)
-                    startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND)
-                            .putExtra(Intent.EXTRA_STREAM, Uri.parse(uri))
-                            .setType("imageElement/jpeg"), getString(R.string.message_save_image_failed)))
-                }
+                viewModel.shareImage()
             }
         }
         return super.onOptionsItemSelected(item)

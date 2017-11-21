@@ -5,6 +5,7 @@ import dagger.Module
 import dagger.Provides
 import ns.me.ns.furaffinity.ds.local.dao.AppDatabase
 import ns.me.ns.furaffinity.ds.local.dao.FavoriteDao
+import ns.me.ns.furaffinity.ds.local.dao.SubmissionDao
 import javax.inject.Singleton
 
 /**
@@ -19,6 +20,10 @@ class DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideSubmissionDao(database: AppDatabase): FavoriteDao = database.favoriteDao()
+    fun provideFavoriteDao(database: AppDatabase): FavoriteDao = database.favoriteDao()
+
+    @Provides
+    @Singleton
+    fun provideSubmissionDao(database: AppDatabase): SubmissionDao = database.submissionDao()
 
 }

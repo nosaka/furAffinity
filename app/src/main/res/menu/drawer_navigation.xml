@@ -11,6 +11,6 @@
         android:title="@string/action_submissions" />
     <item
         android:id="@+id/navigation_favorite"
-        android:icon="@drawable/ic_favorite_border"
+        android:icon="@drawable/ic_favorite"
         android:title="@string/action_favorite" />
 </menu>

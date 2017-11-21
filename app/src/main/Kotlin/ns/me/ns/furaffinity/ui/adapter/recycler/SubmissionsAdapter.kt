@@ -5,10 +5,10 @@ import android.databinding.DataBindingUtil
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import io.reactivex.subjects.PublishSubject
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.ListItemFooterBinding
 import ns.me.ns.furaffinity.databinding.ListItemSubmissionsContentsBinding
+import ns.me.ns.furaffinity.ds.local.model.Submission
 import ns.me.ns.furaffinity.ds.remote.model.impl.entity.ViewElement
 import ns.me.ns.furaffinity.ui.adapter.AbstractRecyclerViewAdapter
 
@@ -16,10 +16,6 @@ import ns.me.ns.furaffinity.ui.adapter.AbstractRecyclerViewAdapter
  * Submissions Adapter
  */
 class SubmissionsAdapter(context: Context) : AbstractRecyclerViewAdapter<SubmissionsAdapter.ContentsViewModel>(context) {
-
-    init {
-        setFooterDisplay(true)
-    }
 
     companion object {
 
@@ -47,20 +43,17 @@ class SubmissionsAdapter(context: Context) : AbstractRecyclerViewAdapter<Submiss
     /**
      * データコンテンツViewModel
      */
-    class ContentsViewModel(value: ViewElement) : ViewElement() {
+    class ContentsViewModel(value: Submission) : ViewElement() {
         init {
             viewId = value.viewId
             name = value.name
 
-            imageElement.src = value.imageElement.src
-            imageElement.alt = value.imageElement.alt
+            imageElement.src = value.src
+            imageElement.alt = value.alt
 
         }
 
-        val onItemClickPublishSubject: PublishSubject<SubmissionsAdapter.ContentsViewModel>
-                = PublishSubject.create<SubmissionsAdapter.ContentsViewModel>()
-
-        val onItemSelected: View.OnClickListener = View.OnClickListener { onItemClickPublishSubject.onNext(this@ContentsViewModel) }
+        var onItemSelected: View.OnClickListener? = null
     }
 
     /**
@@ -97,10 +90,8 @@ class SubmissionsAdapter(context: Context) : AbstractRecyclerViewAdapter<Submiss
             TYPE_DATA_CONTENTS -> {
                 (viewHolder as? ContentsViewHolder)?.let {
                     val view = it.binding.imageView
+                    data.onItemSelected = View.OnClickListener { onItemClickPublishSubject.onNext(OnClickItem(data, view)) }
                     it.binding.viewModel = data
-                    it.binding.viewModel.onItemClickPublishSubject.subscribe {
-                        onItemClick?.invoke(this@SubmissionsAdapter, it, view)
-                    }
                 }
             }
         }

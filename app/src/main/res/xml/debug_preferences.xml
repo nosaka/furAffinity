@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:key="deleteFavorites"
+        android:summary="delete all Favorites."
+        android:title="delete all Favorites" />
+
+    <Preference
+        android:key="deleteSubmissions"
+        android:summary="delete all Submissions."
+        android:title="delete all Submissions" />
+
+</PreferenceScreen>

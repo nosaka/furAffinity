@@ -9,6 +9,8 @@
         <variable
             name="viewModel"
             type="ns.me.ns.furaffinity.ui.viewmodel.FullViewViewModel" />
+
+        <import type="android.view.View" />
     </data>
 
     <android.support.design.widget.CoordinatorLayout
@@ -16,12 +18,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="@{viewModel.full.imageElement.alt}" />
 
         <com.github.chrisbanes.photoview.PhotoView
             android:id="@+id/fullImageView"
@@ -33,6 +29,13 @@
             app:onPhotoTapListener="@{viewModel.onPhotoTapListener}"
             tools:ignore="ContentDescription" />
 
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            app:title="@{viewModel.full.imageElement.alt}" />
+
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/favoriteFloatingActionButton"
             android:layout_width="wrap_content"
@@ -40,7 +43,9 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/material_padding"
             android:onClick="@{viewModel.onClickFavorite}"
-            android:src="@{viewModel.favorite != null ? @drawable/ic_favorite : @drawable/ic_action_save}" />
+            android:padding="0dp"
+            app:backgroundTint="@android:color/white"
+            app:icon="@{viewModel.actionIconResId}" />
 
     </android.support.design.widget.CoordinatorLayout>
 

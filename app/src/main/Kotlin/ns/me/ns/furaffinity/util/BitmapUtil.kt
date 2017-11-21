@@ -26,12 +26,12 @@ object BitmapUtil {
     }
 
     /**
-     * キャッシュ
+     * メモリキャッシュ
      * @param key キー
      * @param bitmap [Bitmap]
      */
-    fun cache(key: String?, bitmap: Bitmap?) {
-        if (key == null || bitmap == null) return
+    fun cacheMemory(key: String, bitmap: Bitmap?) {
+        if (bitmap == null) return
         cache.put(key, bitmap)
     }
 
@@ -39,7 +39,7 @@ object BitmapUtil {
      * @param key キー
      * @return [Bitmap]
      */
-    fun cache(key: String?): Bitmap? = cache.get(key)
+    fun cacheMemory(key: String): Bitmap? = cache.get(key)
 
     /**
      * Bitmapバイト配列デコード処理

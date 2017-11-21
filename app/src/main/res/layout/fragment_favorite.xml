@@ -9,6 +9,8 @@
         <variable
             name="viewModel"
             type="ns.me.ns.furaffinity.ui.viewmodel.FavoriteViewModel" />
+
+        <import type="android.view.View" />
     </data>
 
     <FrameLayout
@@ -19,8 +21,28 @@
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="@{viewModel.isEmptyFavorite ? View.GONE : View.VISIBLE }"
             app:layoutManager="android.support.v7.widget.LinearLayoutManager"
             app:linearDivider="@{@dimen/linear_divider}" />
+
+        <FrameLayout
+            android:id="@+id/emptyContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="@{viewModel.isEmptyFavorite ? View.VISIBLE : View.GONE }">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:drawablePadding="8dp"
+                android:drawableStart="@drawable/fab_favorite"
+                android:gravity="center_vertical"
+                android:text="@string/label_favorite_not_found_favorite"
+                android:textSize="@dimen/material_text_headline" />
+
+        </FrameLayout>
 
     </FrameLayout>
 

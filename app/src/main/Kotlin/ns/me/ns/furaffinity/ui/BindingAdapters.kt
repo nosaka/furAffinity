@@ -4,6 +4,7 @@ import android.databinding.BindingAdapter
 import android.databinding.BindingMethod
 import android.databinding.BindingMethods
 import android.support.design.widget.BottomNavigationView
+import android.support.design.widget.FloatingActionButton
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -22,7 +23,8 @@ import ns.me.ns.furaffinity.util.LogUtil
 @BindingMethods(
         BindingMethod(type = PhotoView::class, attribute = "onPhotoTapListener", method = "setOnPhotoTapListener"),
         BindingMethod(type = PhotoView::class, attribute = "onSingleFlingListener", method = "setOnSingleFlingListener"),
-        BindingMethod(type = BottomNavigationView::class, attribute = "onNavigationItemSelectedListener", method = "setOnNavigationItemSelectedListener")
+        BindingMethod(type = BottomNavigationView::class, attribute = "onNavigationItemSelectedListener", method = "setOnNavigationItemSelectedListener"),
+        BindingMethod(type = FloatingActionButton::class, attribute = "icon", method = "setImageResource")
 )
 object BindingAdapters {
 
