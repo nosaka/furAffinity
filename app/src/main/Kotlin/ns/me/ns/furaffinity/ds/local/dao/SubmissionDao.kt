@@ -1,8 +1,6 @@
 package ns.me.ns.furaffinity.ds.local.dao
 
 import android.arch.persistence.room.*
-import io.reactivex.Maybe
-import io.reactivex.Single
 import ns.me.ns.furaffinity.ds.local.model.Submission
 
 /**
@@ -30,13 +28,13 @@ interface SubmissionDao {
     fun deleteAll()
 
     @Query("SELECT * FROM Submission WHERE VIEW_ID = :viewId")
-    fun find(viewId: Int): Maybe<Submission>
+    fun find(viewId: Int): Submission?
 
     @Query("SELECT * FROM Submission ORDER BY VIEW_ID DESC")
-    fun all(): Single<List<Submission>>
+    fun all(): List<Submission>
 
     @Query("SELECT * FROM Submission WHERE VIEW_ID < :viewId ORDER BY VIEW_ID DESC")
-    fun allThanViewId(viewId: Int): Single<List<Submission>>
+    fun allThanViewId(viewId: Int): List<Submission>
 
 
 }

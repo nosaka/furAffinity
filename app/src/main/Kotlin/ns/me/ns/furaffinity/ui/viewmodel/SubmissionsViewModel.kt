@@ -1,11 +1,14 @@
 package ns.me.ns.furaffinity.ui.viewmodel
 
 import android.app.Application
+import android.databinding.ObservableField
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.RecyclerView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
-import ns.me.ns.furaffinity.ds.remote.AppWebApiService
+import ns.me.ns.furaffinity.R
+import ns.me.ns.furaffinity.exception.DisplayUIError
 import ns.me.ns.furaffinity.exception.LoginRequiredException
 import ns.me.ns.furaffinity.repository.SubmissionRepository
 import ns.me.ns.furaffinity.ui.activity.LoginActivity
@@ -18,9 +21,6 @@ import javax.inject.Inject
 class SubmissionsViewModel @Inject constructor(application: Application) : AbstractBaseViewModel(application) {
 
     @Inject
-    lateinit var service: AppWebApiService
-
-    @Inject
     lateinit var submissionRepository: SubmissionRepository
 
     val adapterOnItemClickSubject: PublishSubject<AbstractRecyclerViewAdapter.OnClickItem<SubmissionsAdapter.ContentsViewModel>> = PublishSubject.create()
@@ -31,7 +31,7 @@ class SubmissionsViewModel @Inject constructor(application: Application) : Abstr
                 adapterOnItemClickSubject.onNext(it)
             }
             onRequestReload = {
-                getRemote()
+                getSubmissions()
             }
             setFooterDisplay(true)
         }
@@ -39,47 +39,27 @@ class SubmissionsViewModel @Inject constructor(application: Application) : Abstr
 
     val onEndScrollListener = object : OnEndScrollListener() {
         override fun onEndScroll(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            if (isGetLocal) getRemote() else getLocal()
+            getSubmissions()
         }
     }
 
-    private var isGetLocal = false
+    val onRefreshListener = SwipeRefreshLayout.OnRefreshListener { refreshSubmissions() }
 
-    private fun getLocal() {
-        isGetLocal = true
-        val lastViewId = submissionsAdapter.getData(submissionsAdapter.dataCount - 1)?.viewId
-        submissionRepository.getLocal(lastViewId)
+    val refreshing = ObservableField<Boolean>().apply { set(false) }
+
+    private fun getSubmissions() {
+        if (refreshing.get() == true) return
+
+        val get = if (submissionsAdapter.dataCount <= 0) submissionRepository.get() else submissionRepository.getMore()
+        get.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .map {
                     return@map it.map {
                         SubmissionsAdapter.ContentsViewModel(it)
                     }
                 }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    if (it.isNotEmpty()) {
-                        submissionsAdapter.addDataAll(it)
-                    } else {
-                        getRemote()
-                    }
-
-                }, {
-                    LogUtil.e(it)
-                    submissionsAdapter.loadingError = true
-                })
-
-    }
-
-    private fun getRemote() {
-        submissionRepository.getRemote()
-                .map {
-                    return@map it.map {
-                        SubmissionsAdapter.ContentsViewModel(it)
-                    }
-                }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
+                    submissionsAdapter.setLoadingError(false)
                     if (it.isNotEmpty()) {
                         submissionsAdapter.addDataAll(it)
                     } else {
@@ -87,12 +67,50 @@ class SubmissionsViewModel @Inject constructor(application: Application) : Abstr
                     }
                 }, {
                     LogUtil.e(it)
-                    submissionsAdapter.loadingError = true
+                    submissionsAdapter.setLoadingError(true)
                     if (it is LoginRequiredException) {
                         startActivitySubject.onNext(LoginActivity.intent(context))
                         finishActivitySubject.onNext(Unit)
                     }
                 })
+
+    }
+
+    private fun refreshSubmissions() {
+        refreshing.set(true)
+        submissionsAdapter.setFooterDisplay(false)
+        submissionRepository.refresh()
+                .map {
+                    return@map it.map {
+                        SubmissionsAdapter.ContentsViewModel(it)
+                    }
+                }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    submissionsAdapter.clear()
+                }
+                .subscribe({
+                    submissionsAdapter.setLoadingError(false)
+                    if (it.isNotEmpty()) {
+                        submissionsAdapter.addDataAll(it)
+                        submissionsAdapter.setFooterDisplay(true)
+                    } else {
+                        submissionsAdapter.setFooterDisplay(false)
+                    }
+                }, {
+                    LogUtil.e(it)
+                    if (it is LoginRequiredException) {
+                        startActivitySubject.onNext(LoginActivity.intent(context))
+                        finishActivitySubject.onNext(Unit)
+                    }
+                    refreshing.set(false)
+                    displayUIErrorSubject.onNext(DisplayUIError(R.string.error_network))
+                }, {
+                    refreshing.set(false)
+                })
+
+
     }
 
 }

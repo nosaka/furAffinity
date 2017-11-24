@@ -4,6 +4,7 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.content.Intent
 import io.reactivex.subjects.PublishSubject
+import ns.me.ns.furaffinity.exception.DisplayUIError
 
 
 /**
@@ -18,5 +19,7 @@ abstract class AbstractBaseViewModel(application: Application) : AndroidViewMode
     val finishActivitySubject: PublishSubject<Unit> = PublishSubject.create()
 
     val systemUISubject: PublishSubject<Unit> = PublishSubject.create()
+
+    val displayUIErrorSubject: PublishSubject<DisplayUIError> = PublishSubject.create()
 
 }

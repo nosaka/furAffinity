@@ -14,9 +14,9 @@ import retrofit2.http.Path
  */
 interface AppWebApiService {
 
-    @GET("/msg/submissions/new~{lastViewId}@72")
+    @GET("/msg/submissions/new~{nextViewId}@72")
     @JsoupParserType(MsgSubmissionsParser::class)
-    fun getMsgSubmissions(@Path("lastViewId") lastViewId: Int = 0): Single<MsgSubmissions>
+    fun getMsgSubmissions(@Path("nextViewId") viewId: Int = 0): Single<MsgSubmissions>
 
     @GET("/full/{viewId}/")
     @JsoupParserType(FullParser::class)

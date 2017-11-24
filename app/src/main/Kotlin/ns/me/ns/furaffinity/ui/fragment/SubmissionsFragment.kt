@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +22,7 @@ import javax.inject.Inject
 /**
  *
  */
-class SubmissionsFragment() : AbstractBaseFragment<SubmissionsViewModel>(), Injectable {
+class SubmissionsFragment : AbstractBaseFragment<SubmissionsViewModel>(), Injectable {
 
     companion object {
         fun instance() = SubmissionsFragment()
@@ -64,6 +65,10 @@ class SubmissionsFragment() : AbstractBaseFragment<SubmissionsViewModel>(), Inje
             startActivity(FullViewActivity.intent(activity, viewId, keyCache),
                     FullViewActivity.option(activity, it.view)
             )
+        }.also { disposer.add(it) }
+
+        viewModel.displayUIErrorSubject.subscribe {
+            Snackbar.make(binding.swipeRefreshLayout, it.messageRes, Snackbar.LENGTH_SHORT).show()
         }.also { disposer.add(it) }
 
     }

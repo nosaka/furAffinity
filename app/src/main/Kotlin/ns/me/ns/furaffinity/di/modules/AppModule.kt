@@ -9,7 +9,7 @@ import javax.inject.Singleton
 /**
  * Provider for App
  */
-@Module(includes = arrayOf(LogicModule::class, WebModule::class, DatabaseModule::class, ViewModule::class))
+@Module(includes = arrayOf(WebModule::class, RepositoryModule::class, ViewModule::class))
 class AppModule(private val application: Application) {
 
     @Provides

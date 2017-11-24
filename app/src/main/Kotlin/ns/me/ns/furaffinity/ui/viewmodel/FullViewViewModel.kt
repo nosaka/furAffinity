@@ -15,10 +15,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import ns.me.ns.furaffinity.R
+import ns.me.ns.furaffinity.ds.local.model.Favorite
 import ns.me.ns.furaffinity.ds.remote.AppWebApiService
 import ns.me.ns.furaffinity.ds.remote.model.impl.Full
 import ns.me.ns.furaffinity.exception.LoginRequiredException
-import ns.me.ns.furaffinity.logic.FavoriteLogic
+import ns.me.ns.furaffinity.repository.FavoriteRepository
 import ns.me.ns.furaffinity.ui.ObservableDrawableTarget
 import ns.me.ns.furaffinity.ui.activity.LoginActivity
 import ns.me.ns.furaffinity.util.BitmapUtil
@@ -32,7 +33,7 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
     lateinit var service: AppWebApiService
 
     @Inject
-    lateinit var favoriteLogic: FavoriteLogic
+    lateinit var favoriteRepository: FavoriteRepository
 
     val imageChangeSubject: PublishSubject<Bitmap> = PublishSubject.create()
 
@@ -43,9 +44,8 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
             override fun onPropertyChanged(observable: Observable?, id: Int) {
                 when (observable) {
                     viewId -> {
-                        val viewId = viewId.get() ?: return
-                        getFull(viewId)
-                        checkFavorite(viewId)
+                        getFull()
+                        checkFavorite()
                     }
                     image -> {
                         (image.get() as? BitmapDrawable)?.bitmap?.let {
@@ -79,25 +79,26 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
 
     val onClickFavorite = View.OnClickListener { _ ->
         val viewId = viewId.get() ?: return@OnClickListener
-        favoriteLogic.isFavorite(viewId)
-                .flatMap {
-                    return@flatMap if (it) {
-                        favoriteLogic.remove(viewId).toSingleDefault(false)
-                    } else {
-                        val bitmap = (image.get() as? BitmapDrawable)?.bitmap
-                        favoriteLogic.save(viewId, full.get()?.imageElement?.src, full.get()?.imageElement?.alt, bitmap).toSingleDefault(true)
-
+        favoriteRepository.find(viewId)
+                .flatMapCompletable { favoriteRepository.remove(viewId) }
+                .onErrorResumeNext {
+                    val favorite = Favorite()
+                    favorite.viewId = viewId
+                    favorite.src = full.get()?.imageElement?.src
+                    favorite.alt = full.get()?.imageElement?.alt
+                    val bitmap = (image.get() as? BitmapDrawable)?.bitmap
+                    bitmap?.let {
+                        favorite.imageData = BitmapUtil.decodeByteArray(it)
                     }
+                    return@onErrorResumeNext favoriteRepository.save(favorite)
                 }
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    actionIconResId.set(if (it) R.drawable.fab_favorite_border else R.drawable.fab_favorite)
-                    ToastUtil.showToast(context, if (it) R.string.message_add_favorite else R.string.message_remove_favorite)
+                    checkFavorite()
                 }, {
                     LogUtil.e(it)
                 })
-
 
     }
 
@@ -129,8 +130,8 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
         Picasso.with(context).load(url).placeholder(image.get()).into(image)
     }
 
-    private fun getFull(viewId: Int) {
-
+    private fun getFull() {
+        val viewId = viewId.get() ?: return
         service.getFull(viewId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -144,8 +145,11 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
                 })
     }
 
-    private fun checkFavorite(viewId: Int) {
-        favoriteLogic.isFavorite(viewId)
+    private fun checkFavorite() {
+        val viewId = viewId.get() ?: return
+        favoriteRepository.find(viewId)
+                .map { true }
+                .onErrorReturn { false }
                 .observeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({

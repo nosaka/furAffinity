@@ -9,13 +9,12 @@
     <string name="action_save">保存</string>
     <string name="action_share">共有</string>
 
+    <string name="error_network">通信できませんでした</string>
     <string name="message_save_image_success">画像を保存しました</string>
     <string name="message_save_image_failed">画像の保存に失敗しました</string>
     <string name="message_share_image">画像の共有</string>
-
-
     <string name="message_add_favorite">お気に入りに追加しました</string>
     <string name="message_remove_favorite">お気に入りから削除しました</string>
 
-    <string name="label_favorite_not_found_favorite">was empty.</string>
+    <string name="label_favorite_not_found_favorite">Empty</string>
 </resources>

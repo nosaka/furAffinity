@@ -312,6 +312,7 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
 
     override fun clear() {
         items.clear()
+        notifyDataSetChanged()
     }
 
     override val dataCount: Int

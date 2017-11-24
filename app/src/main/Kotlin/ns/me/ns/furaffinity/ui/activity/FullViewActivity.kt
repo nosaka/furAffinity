@@ -74,7 +74,6 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
             }
         }.also { disposer.add(it) }
 
-
         binding.fullImageView.apply {
             var animator: ValueAnimator? = null
             setOnViewDragListener { _, dy ->
@@ -101,7 +100,6 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
                 animator?.start()
                 return@setOnSingleFlingListener false
             }
-
         }
 
         intent.getStringExtra(KEY_BUNDLE_CACHE_KEY_BITMAP)?.let {
@@ -112,7 +110,7 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.full_view, menu)
-        return true
+        return true;
     }
 
 

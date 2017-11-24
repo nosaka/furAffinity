@@ -5,7 +5,7 @@ import android.databinding.ObservableField
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
-import ns.me.ns.furaffinity.ds.local.dao.FavoriteDao
+import ns.me.ns.furaffinity.repository.FavoriteRepository
 import ns.me.ns.furaffinity.ui.adapter.AbstractRecyclerViewAdapter
 import ns.me.ns.furaffinity.ui.adapter.recycler.FavoriteAdapter
 import ns.me.ns.furaffinity.util.LogUtil
@@ -14,7 +14,7 @@ import javax.inject.Inject
 class FavoriteViewModel @Inject constructor(application: Application) : AbstractBaseViewModel(application) {
 
     @Inject
-    lateinit var favoriteDao: FavoriteDao
+    lateinit var favoriteRepository: FavoriteRepository
 
     var isEmptyFavorite = ObservableField<Boolean>()
 
@@ -30,7 +30,7 @@ class FavoriteViewModel @Inject constructor(application: Application) : Abstract
     }
 
     fun refreshAdapter() {
-        favoriteDao.all()
+        favoriteRepository.get()
                 .subscribeOn(Schedulers.io())
                 .map {
                     return@map it.map { FavoriteAdapter.ContentsViewModel(it) }

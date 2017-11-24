@@ -1,8 +1,6 @@
 package ns.me.ns.furaffinity.ds.local.dao
 
 import android.arch.persistence.room.*
-import io.reactivex.Flowable
-import io.reactivex.Maybe
 import ns.me.ns.furaffinity.ds.local.model.Favorite
 
 /**
@@ -26,9 +24,9 @@ interface FavoriteDao {
     fun deleteAll()
 
     @Query("SELECT * FROM Favorite WHERE VIEW_ID = :viewId")
-    fun find(viewId: Int): Maybe<Favorite>
+    fun find(viewId: Int): Favorite?
 
     @Query("SELECT * FROM Favorite")
-    fun all(): Flowable<List<Favorite>>
+    fun all(): List<Favorite>
 
 }

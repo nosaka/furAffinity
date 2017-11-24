@@ -4,7 +4,7 @@
     <data>
 
         <variable
-            name="loadingError"
+            name="isError"
             type="Boolean" />
 
         <variable
@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="@{loadingError ? View.INVISIBLE : View.VISIBLE}" />
+            android:visibility="@{isError ? View.INVISIBLE : View.VISIBLE}" />
 
         <Button
             style="@style/Widget.AppCompat.Button.Borderless"
@@ -32,7 +32,7 @@
             android:gravity="center"
             android:onClick="@{onRetryClickListener}"
             android:text="@string/action_retry"
-            android:visibility="@{loadingError ? View.VISIBLE : View.INVISIBLE}" />
+            android:visibility="@{isError ? View.VISIBLE : View.INVISIBLE}" />
 
     </FrameLayout>
 </layout>

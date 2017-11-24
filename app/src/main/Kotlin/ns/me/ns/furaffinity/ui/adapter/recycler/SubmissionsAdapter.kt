@@ -27,18 +27,14 @@ class SubmissionsAdapter(context: Context) : AbstractRecyclerViewAdapter<Submiss
     }
 
     /**
-     * ローディングエラー是非
-     */
-    var loadingError: Boolean = false
-        set(value) {
-            field = value
-            setFooterDisplay(true)
-        }
-
-    /**
      * リロード要求
      */
     var onRequestReload: (() -> Unit)? = null
+
+    /**
+     * エラー是非
+     */
+    private var error: Boolean = false
 
     /**
      * データコンテンツViewModel
@@ -99,10 +95,10 @@ class SubmissionsAdapter(context: Context) : AbstractRecyclerViewAdapter<Submiss
 
     override fun bindFooterViewHolder(viewHolder: ViewHolder) {
         (viewHolder as? FooterHolder)?.let {
-            it.binding.loadingError = loadingError
+            it.binding.isError = error
             it.binding.onRetryClickListener = View.OnClickListener { _ ->
-                loadingError = false
-                it.binding.loadingError = loadingError
+                error = false
+                it.binding.isError = error
                 onRequestReload?.invoke()
             }
         }
@@ -110,6 +106,13 @@ class SubmissionsAdapter(context: Context) : AbstractRecyclerViewAdapter<Submiss
 
     override fun createFooterViewHolder(inflater: LayoutInflater, parent: ViewGroup): AbstractRecyclerViewAdapter.ViewHolder? {
         return FooterHolder(inflater.inflate(R.layout.list_item_footer, parent, false))
+    }
+
+    /**
+     * エラー設定処理
+     */
+    fun setLoadingError(isError: Boolean) {
+        error = isError
     }
 
 }

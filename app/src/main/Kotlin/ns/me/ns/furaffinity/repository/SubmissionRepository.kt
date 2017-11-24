@@ -1,9 +1,12 @@
 package ns.me.ns.furaffinity.repository
 
+import io.reactivex.Observable
+import io.reactivex.ObservableEmitter
 import io.reactivex.Single
 import ns.me.ns.furaffinity.ds.local.dao.SubmissionDao
 import ns.me.ns.furaffinity.ds.local.model.Submission
 import ns.me.ns.furaffinity.ds.remote.AppWebApiService
+import ns.me.ns.furaffinity.ds.remote.model.impl.entity.ViewElement
 import javax.inject.Inject
 
 /**
@@ -11,30 +14,102 @@ import javax.inject.Inject
  */
 class SubmissionRepository @Inject constructor(private val service: AppWebApiService, private val submissionDao: SubmissionDao) {
 
-    fun getLocal(viewId: Int?): Single<List<Submission>> = if (viewId != null) submissionDao.allThanViewId(viewId) else submissionDao.all()
+    fun get(): Single<List<Submission>> {
+        return Single.create<List<Submission>> { emitter ->
+            val items = submissionDao.all()
+            if (items.isNotEmpty()) {
+                emitter.onSuccess(items)
+            } else {
+                service.getMsgSubmissions()
+                        .map {
+                            return@map it.viewElements.mapNotNull { convert(it) }
+                        }
+                        .subscribe({
+                            submissionDao.insert(*it.toTypedArray())
+                            emitter.onSuccess(it)
+                        }, {
+                            emitter.onError(it)
+                        })
 
-    fun getRemote(): Single<List<Submission>> {
-        var viewId = 0
-        return submissionDao.all()
-                .map { it.lastOrNull()?.viewId ?: 0 }
-                .flatMap {
-                    viewId = it
-                    return@flatMap service.getMsgSubmissions(lastViewId = viewId)
-                }
+            }
+        }
+    }
+
+    fun refresh(): Observable<List<Submission>> {
+
+        return Observable.create<List<Submission>> { emitter ->
+            val items = submissionDao.all()
+            if (items.isEmpty()) {
+                service.getMsgSubmissions()
+                        .map {
+                            return@map it.viewElements.mapNotNull { convert(it) }
+                        }
+                        .doOnSuccess {
+                            submissionDao.insert(*it.toTypedArray())
+                        }
+                        .subscribe({
+                            emitter.onNext(it)
+                            emitter.onComplete()
+                        }, {
+                            emitter.onError(it)
+                        })
+
+            }
+            val lastViewId = items.last().viewId
+            getMsgSubmissionsUntilViewId(lastViewId, 0, emitter)
+
+        }
+    }
+
+    private fun getMsgSubmissionsUntilViewId(untilViewId: Int, nextViewId: Int, emitter: ObservableEmitter<List<Submission>>) {
+        service.getMsgSubmissions(nextViewId)
                 .map {
-                    return@map it.viewElements
-                            .filter { it.viewId != viewId }
-                            .map convert@ {
-                                val entity = Submission()
-                                entity.viewId = it.viewId!!
-                                entity.name = it.name
-                                entity.src = it.imageElement.src
-                                entity.alt = it.imageElement.alt
-                                return@convert entity
-                            }
+                    return@map it.viewElements.mapNotNull { convert(it) }
                 }
                 .doOnSuccess {
                     submissionDao.insert(*it.toTypedArray())
                 }
+                .subscribe({
+                    emitter.onNext(it)
+                    val moreNextViewId = it.lastOrNull()?.viewId?.minus(1) ?: 0
+                    if (it.isEmpty() || untilViewId >= it.lastOrNull()?.viewId ?: 0) {
+                        emitter.onComplete()
+                    } else {
+                        getMsgSubmissionsUntilViewId(untilViewId, moreNextViewId, emitter)
+                    }
+                }, {
+                    emitter.onError(it)
+                })
     }
+
+    fun getMore(): Single<List<Submission>> {
+        return Single.create<List<Submission>> { emitter ->
+            val items = submissionDao.all()
+            val nextViewId = items.lastOrNull()?.viewId?.minus(1) ?: 0
+
+            service.getMsgSubmissions(nextViewId)
+                    .map {
+                        return@map it.viewElements.mapNotNull { convert(it) }
+                    }
+                    .doOnSuccess {
+                        submissionDao.insert(*it.toTypedArray())
+                    }
+                    .subscribe({
+                        emitter.onSuccess(it)
+                    }, {
+                        emitter.onError(it)
+                    })
+        }
+    }
+
+    private fun convert(value: ViewElement): Submission? {
+        val viewId = value.viewId ?: return null
+        val entity = Submission()
+        entity.viewId = viewId
+        entity.name = value.name
+        entity.src = value.imageElement.src
+        entity.alt = value.imageElement.alt
+        return entity
+    }
+
 }
