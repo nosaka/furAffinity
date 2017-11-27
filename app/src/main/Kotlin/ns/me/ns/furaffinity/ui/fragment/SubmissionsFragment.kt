@@ -15,6 +15,7 @@ import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.FragmentSubmissionsBinding
 import ns.me.ns.furaffinity.di.Injectable
 import ns.me.ns.furaffinity.ui.activity.FullViewActivity
+import ns.me.ns.furaffinity.ui.viewmodel.FullViewViewModel
 import ns.me.ns.furaffinity.ui.viewmodel.SubmissionsViewModel
 import ns.me.ns.furaffinity.util.BitmapUtil
 import javax.inject.Inject
@@ -62,7 +63,7 @@ class SubmissionsFragment : AbstractBaseFragment<SubmissionsViewModel>(), Inject
             keyCache?.let {
                 BitmapUtil.cacheMemory(it, bitmap)
             }
-            startActivity(FullViewActivity.intent(activity, viewId, keyCache),
+            startActivity(FullViewActivity.intent(activity, FullViewViewModel.Type.SUBMISSION, viewId, keyCache),
                     FullViewActivity.option(activity, it.view)
             )
         }.also { disposer.add(it) }

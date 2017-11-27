@@ -1,8 +1,8 @@
-package ns.me.ns.furaffinity.ds.remote.parser.impl
+package ns.me.ns.furaffinity.repository.model.remote.parser.impl
 
-import ns.me.ns.furaffinity.ds.remote.model.impl.MsgSubmissions
-import ns.me.ns.furaffinity.ds.remote.model.impl.entity.ViewElement
-import ns.me.ns.furaffinity.ds.remote.parser.JsoupParser
+import ns.me.ns.furaffinity.repository.model.remote.MsgSubmissions
+import ns.me.ns.furaffinity.repository.model.remote.model.entity.ViewElement
+import ns.me.ns.furaffinity.repository.model.remote.parser.JsoupParser
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 

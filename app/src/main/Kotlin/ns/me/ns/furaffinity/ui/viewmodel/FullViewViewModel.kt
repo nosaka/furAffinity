@@ -15,13 +15,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import ns.me.ns.furaffinity.R
-import ns.me.ns.furaffinity.ds.local.model.Favorite
-import ns.me.ns.furaffinity.ds.remote.AppWebApiService
-import ns.me.ns.furaffinity.ds.remote.model.impl.Full
+import ns.me.ns.furaffinity.ds.webapi.AppWebApiService
 import ns.me.ns.furaffinity.exception.LoginRequiredException
 import ns.me.ns.furaffinity.repository.FavoriteRepository
+import ns.me.ns.furaffinity.repository.SubmissionRepository
+import ns.me.ns.furaffinity.repository.model.local.Favorite
+import ns.me.ns.furaffinity.repository.model.remote.Full
 import ns.me.ns.furaffinity.ui.ObservableDrawableTarget
 import ns.me.ns.furaffinity.ui.activity.LoginActivity
+import ns.me.ns.furaffinity.ui.adapter.pager.FullViewPagerAdapter
 import ns.me.ns.furaffinity.util.BitmapUtil
 import ns.me.ns.furaffinity.util.LogUtil
 import ns.me.ns.furaffinity.util.ToastUtil
@@ -29,13 +31,26 @@ import javax.inject.Inject
 
 class FullViewViewModel @Inject constructor(application: Application) : AbstractBaseViewModel(application) {
 
+    enum class Type {
+        SUBMISSION, FAVORITE
+    }
+
     @Inject
     lateinit var service: AppWebApiService
 
     @Inject
     lateinit var favoriteRepository: FavoriteRepository
 
+    @Inject
+    lateinit var submissionRepository: SubmissionRepository
+
+    val fullViewPagerAdapter: FullViewPagerAdapter by lazy {
+        FullViewPagerAdapter(application)
+    }
+
     val imageChangeSubject: PublishSubject<Bitmap> = PublishSubject.create()
+
+    val pageChangeSubject: PublishSubject<Int> = PublishSubject.create()
 
     var actionIconResId: ObservableField<Int> = ObservableField()
 
@@ -100,6 +115,37 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
                     LogUtil.e(it)
                 })
 
+    }
+
+    fun createViewPagerItems(type: Type, viewId: Int?) {
+        when (type) {
+            Type.SUBMISSION -> {
+                submissionRepository.getLocal()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            fullViewPagerAdapter.items.addAll(it.map { FullViewPagerAdapter.ViewModel(it) })
+                            fullViewPagerAdapter.notifyDataSetChanged()
+                            val selection = fullViewPagerAdapter.items.indexOfFirst { it.viewId == viewId }
+                            pageChangeSubject.onNext(selection)
+                        }, {
+                            LogUtil.e(it)
+                        })
+            }
+            Type.FAVORITE -> {
+                favoriteRepository.getLocal()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            fullViewPagerAdapter.items.addAll(it.map { FullViewPagerAdapter.ViewModel(it) })
+                            fullViewPagerAdapter.notifyDataSetChanged()
+                            val selection = fullViewPagerAdapter.items.indexOfFirst { it.viewId == viewId }
+                            pageChangeSubject.onNext(selection)
+                        }, {
+                            LogUtil.e(it)
+                        })
+            }
+        }
     }
 
     fun saveImage() {

@@ -8,8 +8,8 @@ import android.view.ViewGroup
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.ListItemFooterBinding
 import ns.me.ns.furaffinity.databinding.ListItemSubmissionsContentsBinding
-import ns.me.ns.furaffinity.ds.local.model.Submission
-import ns.me.ns.furaffinity.ds.remote.model.impl.entity.ViewElement
+import ns.me.ns.furaffinity.repository.model.local.Submission
+import ns.me.ns.furaffinity.repository.model.remote.model.entity.ViewElement
 import ns.me.ns.furaffinity.ui.adapter.AbstractRecyclerViewAdapter
 
 /**

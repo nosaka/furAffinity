@@ -1,19 +1,27 @@
 package ns.me.ns.furaffinity.ui.viewmodel
 
 import android.app.Application
+import android.databinding.ObservableField
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
+import android.view.View
 import io.reactivex.subjects.PublishSubject
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.ui.fragment.FavoriteFragment
 import ns.me.ns.furaffinity.ui.fragment.SubmissionsFragment
+import java.util.*
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(application: Application) : AbstractBaseViewModel(application) {
 
     val navigationItemSubject: PublishSubject<Fragment> = PublishSubject.create()
 
+    val changeColorSubject: PublishSubject<Int> = PublishSubject.create()
+
+    val errro =  ObservableField<String>()
+
     private val fragments = HashMap<Int, Fragment>()
+
 
     val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener {
 

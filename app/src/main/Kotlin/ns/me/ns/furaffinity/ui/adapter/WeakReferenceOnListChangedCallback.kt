@@ -24,7 +24,7 @@ class WeakReferenceOnListChangedCallback<T>(adapter: AbstractRecyclerViewAdapter
     }
 
     override fun onItemRangeInserted(sender: ObservableList<T>, positionStart: Int, itemCount: Int) {
-        // TODO : adapterReference.get()?.notifyItemRangeInserted(positionStart, itemCount) だと勝手にスクロールする。要調査
+        // TODO : adapterReference.getLocal()?.notifyItemRangeInserted(positionStart, itemCount) だと勝手にスクロールする。要調査
         adapterReference.get()?.notifyItemInserted(positionStart)
     }
 

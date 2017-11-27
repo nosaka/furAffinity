@@ -1,10 +1,10 @@
-package ns.me.ns.furaffinity.ds.remote
+package ns.me.ns.furaffinity.ds.webapi
 
 import io.reactivex.Single
-import ns.me.ns.furaffinity.ds.remote.model.impl.Full
-import ns.me.ns.furaffinity.ds.remote.model.impl.MsgSubmissions
-import ns.me.ns.furaffinity.ds.remote.parser.impl.FullParser
-import ns.me.ns.furaffinity.ds.remote.parser.impl.MsgSubmissionsParser
+import ns.me.ns.furaffinity.repository.model.remote.Full
+import ns.me.ns.furaffinity.repository.model.remote.MsgSubmissions
+import ns.me.ns.furaffinity.repository.model.remote.parser.impl.FullParser
+import ns.me.ns.furaffinity.repository.model.remote.parser.impl.MsgSubmissionsParser
 import retrofit2.http.GET
 import retrofit2.http.Path
 

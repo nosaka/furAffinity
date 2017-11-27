@@ -30,7 +30,7 @@ class FavoriteViewModel @Inject constructor(application: Application) : Abstract
     }
 
     fun refreshAdapter() {
-        favoriteRepository.get()
+        favoriteRepository.getLocal()
                 .subscribeOn(Schedulers.io())
                 .map {
                     return@map it.map { FavoriteAdapter.ContentsViewModel(it) }

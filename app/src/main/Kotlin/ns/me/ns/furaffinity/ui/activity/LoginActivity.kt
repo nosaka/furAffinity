@@ -14,7 +14,7 @@ import ns.me.ns.furaffinity.Constants
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.ActivityLoginBinding
 import ns.me.ns.furaffinity.di.Injectable
-import ns.me.ns.furaffinity.ds.remote.AppWebApiService
+import ns.me.ns.furaffinity.ds.webapi.AppWebApiService
 import ns.me.ns.furaffinity.ui.viewmodel.LoginViewModel
 import ns.me.ns.furaffinity.util.LoginManager
 import javax.inject.Inject

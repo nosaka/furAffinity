@@ -2,9 +2,9 @@ package ns.me.ns.furaffinity.di.modules
 
 import dagger.Module
 import dagger.Provides
-import ns.me.ns.furaffinity.ds.local.dao.FavoriteDao
-import ns.me.ns.furaffinity.ds.local.dao.SubmissionDao
-import ns.me.ns.furaffinity.ds.remote.AppWebApiService
+import ns.me.ns.furaffinity.ds.dao.FavoriteDao
+import ns.me.ns.furaffinity.ds.dao.SubmissionDao
+import ns.me.ns.furaffinity.ds.webapi.AppWebApiService
 import ns.me.ns.furaffinity.repository.FavoriteRepository
 import ns.me.ns.furaffinity.repository.SubmissionRepository
 import javax.inject.Singleton
@@ -17,7 +17,7 @@ class RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideSubmissionRepository(service:AppWebApiService, submissionDao: SubmissionDao): SubmissionRepository = SubmissionRepository(service, submissionDao)
+    fun provideSubmissionRepository(service: AppWebApiService, submissionDao: SubmissionDao): SubmissionRepository = SubmissionRepository(service, submissionDao)
 
     @Provides
     @Singleton

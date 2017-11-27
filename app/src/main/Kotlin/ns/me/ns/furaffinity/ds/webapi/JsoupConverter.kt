@@ -1,7 +1,7 @@
-package ns.me.ns.furaffinity.ds.remote
+package ns.me.ns.furaffinity.ds.webapi
 
 import com.google.gson.internal.ObjectConstructor
-import ns.me.ns.furaffinity.ds.remote.parser.JsoupParser
+import ns.me.ns.furaffinity.repository.model.remote.parser.JsoupParser
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import retrofit2.Converter

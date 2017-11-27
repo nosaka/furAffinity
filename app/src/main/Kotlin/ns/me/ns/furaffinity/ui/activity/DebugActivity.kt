@@ -7,9 +7,9 @@ import android.preference.PreferenceFragment
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import ns.me.ns.furaffinity.R
-import ns.me.ns.furaffinity.ds.local.dao.AppDatabase
-import ns.me.ns.furaffinity.ds.local.dao.FavoriteDao
-import ns.me.ns.furaffinity.ds.local.dao.SubmissionDao
+import ns.me.ns.furaffinity.ds.dao.AppDatabase
+import ns.me.ns.furaffinity.ds.dao.FavoriteDao
+import ns.me.ns.furaffinity.ds.dao.SubmissionDao
 import ns.me.ns.furaffinity.util.ToastUtil
 
 

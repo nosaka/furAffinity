@@ -14,6 +14,7 @@ import ns.me.ns.furaffinity.databinding.FragmentFavoriteBinding
 import ns.me.ns.furaffinity.di.Injectable
 import ns.me.ns.furaffinity.ui.activity.FullViewActivity
 import ns.me.ns.furaffinity.ui.viewmodel.FavoriteViewModel
+import ns.me.ns.furaffinity.ui.viewmodel.FullViewViewModel
 import ns.me.ns.furaffinity.util.BitmapUtil
 import javax.inject.Inject
 
@@ -50,7 +51,7 @@ class FavoriteFragment() : AbstractBaseFragment<FavoriteViewModel>(), Injectable
             keyCache?.let {
                 BitmapUtil.cacheMemory(it, bitmap)
             }
-            startActivity(FullViewActivity.intent(activity, it.data.viewId, keyCache),
+            startActivity(FullViewActivity.intent(activity, FullViewViewModel.Type.FAVORITE, it.data.viewId, keyCache),
                     FullViewActivity.option(activity, it.view)
             )
         }.also { disposer.add(it) }

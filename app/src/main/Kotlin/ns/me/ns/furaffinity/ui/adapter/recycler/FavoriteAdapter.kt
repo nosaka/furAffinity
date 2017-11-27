@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.ListItemFavoriteContentsBinding
-import ns.me.ns.furaffinity.ds.local.model.Favorite
+import ns.me.ns.furaffinity.repository.model.local.Favorite
 import ns.me.ns.furaffinity.ui.adapter.AbstractRecyclerViewAdapter
 
 /**

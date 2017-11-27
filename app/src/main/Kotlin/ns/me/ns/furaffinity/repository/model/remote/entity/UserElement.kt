@@ -1,4 +1,4 @@
-package ns.me.ns.furaffinity.ds.remote.model.impl.entity
+package ns.me.ns.furaffinity.repository.model.remote.model.entity
 
 /**
  *

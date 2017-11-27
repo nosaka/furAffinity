@@ -1,11 +1,11 @@
-package ns.me.ns.furaffinity.ds.local.dao
+package ns.me.ns.furaffinity.ds.dao
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
-import ns.me.ns.furaffinity.ds.local.model.Favorite
-import ns.me.ns.furaffinity.ds.local.model.Submission
+import ns.me.ns.furaffinity.repository.model.local.Favorite
+import ns.me.ns.furaffinity.repository.model.local.Submission
 
 /**
  *

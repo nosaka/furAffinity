@@ -3,10 +3,10 @@ package ns.me.ns.furaffinity.repository
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.Single
-import ns.me.ns.furaffinity.ds.local.dao.SubmissionDao
-import ns.me.ns.furaffinity.ds.local.model.Submission
-import ns.me.ns.furaffinity.ds.remote.AppWebApiService
-import ns.me.ns.furaffinity.ds.remote.model.impl.entity.ViewElement
+import ns.me.ns.furaffinity.ds.dao.SubmissionDao
+import ns.me.ns.furaffinity.ds.webapi.AppWebApiService
+import ns.me.ns.furaffinity.repository.model.local.Submission
+import ns.me.ns.furaffinity.repository.model.remote.model.entity.ViewElement
 import javax.inject.Inject
 
 /**
@@ -34,6 +34,8 @@ class SubmissionRepository @Inject constructor(private val service: AppWebApiSer
             }
         }
     }
+
+    fun getLocal(): Single<List<Submission>> = Single.just(submissionDao.all())
 
     fun refresh(): Observable<List<Submission>> {
 

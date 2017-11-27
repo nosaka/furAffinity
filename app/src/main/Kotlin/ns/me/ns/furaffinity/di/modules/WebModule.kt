@@ -3,8 +3,8 @@ package ns.me.ns.furaffinity.di.modules
 import android.content.Context
 import dagger.Module
 import dagger.Provides
-import ns.me.ns.furaffinity.ds.remote.AppWebApiClient
-import ns.me.ns.furaffinity.ds.remote.AppWebApiService
+import ns.me.ns.furaffinity.ds.webapi.AppWebApiClient
+import ns.me.ns.furaffinity.ds.webapi.AppWebApiService
 import javax.inject.Singleton
 
 /**

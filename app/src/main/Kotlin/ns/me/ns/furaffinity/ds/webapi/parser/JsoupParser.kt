@@ -1,7 +1,7 @@
-package ns.me.ns.furaffinity.ds.remote.parser
+package ns.me.ns.furaffinity.repository.model.remote.parser
 
-import ns.me.ns.furaffinity.ds.remote.model.AbstractBaseJsoupResponse
 import ns.me.ns.furaffinity.exception.LoginRequiredException
+import ns.me.ns.furaffinity.repository.model.AbstractBaseJsoupResponse
 import org.jsoup.nodes.Document
 
 /**

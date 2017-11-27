@@ -1,7 +1,7 @@
-package ns.me.ns.furaffinity.ds.local.dao
+package ns.me.ns.furaffinity.ds.dao
 
 import android.arch.persistence.room.*
-import ns.me.ns.furaffinity.ds.local.model.Submission
+import ns.me.ns.furaffinity.repository.model.local.Submission
 
 /**
  *

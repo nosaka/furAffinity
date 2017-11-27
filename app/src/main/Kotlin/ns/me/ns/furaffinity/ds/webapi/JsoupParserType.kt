@@ -1,4 +1,4 @@
-package ns.me.ns.furaffinity.ds.remote
+package ns.me.ns.furaffinity.ds.webapi
 
 import kotlin.reflect.KClass
 

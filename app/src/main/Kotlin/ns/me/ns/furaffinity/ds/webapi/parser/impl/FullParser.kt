@@ -1,7 +1,7 @@
-package ns.me.ns.furaffinity.ds.remote.parser.impl
+package ns.me.ns.furaffinity.repository.model.remote.parser.impl
 
-import ns.me.ns.furaffinity.ds.remote.model.impl.Full
-import ns.me.ns.furaffinity.ds.remote.parser.JsoupParser
+import ns.me.ns.furaffinity.repository.model.remote.Full
+import ns.me.ns.furaffinity.repository.model.remote.parser.JsoupParser
 import org.jsoup.nodes.Document
 
 /**

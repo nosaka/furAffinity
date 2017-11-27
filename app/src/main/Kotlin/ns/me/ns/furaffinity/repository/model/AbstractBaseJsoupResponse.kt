@@ -1,4 +1,4 @@
-package ns.me.ns.furaffinity.ds.remote.model
+package ns.me.ns.furaffinity.repository.model
 
 import org.apache.commons.lang3.builder.ToStringBuilder
 
