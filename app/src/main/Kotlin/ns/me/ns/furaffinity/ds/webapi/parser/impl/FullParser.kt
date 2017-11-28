@@ -1,7 +1,7 @@
-package ns.me.ns.furaffinity.repository.model.remote.parser.impl
+package ns.me.ns.furaffinity.ds.webapi.parser.impl
 
+import ns.me.ns.furaffinity.ds.webapi.parser.JsoupParser
 import ns.me.ns.furaffinity.repository.model.remote.Full
-import ns.me.ns.furaffinity.repository.model.remote.parser.JsoupParser
 import org.jsoup.nodes.Document
 
 /**
@@ -23,6 +23,12 @@ class FullParser : JsoupParser<Full> {
             }
             result.imageElement.alt = it.attr("alt")
         }
+        // user
+        val userTags = document.getElementsByAttributeValueMatching("href", "/user/.*/")
+        val userTag = userTags?.firstOrNull { it.getElementById("my-username") == null }
+        result.userElement.name = userTag?.text()
+        result.userElement.href = userTag?.attr("href")
+
         return result
     }
 

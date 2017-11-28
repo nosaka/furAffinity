@@ -1,4 +1,4 @@
-package ns.me.ns.furaffinity.repository.model.remote.parser
+package ns.me.ns.furaffinity.ds.webapi.parser
 
 import ns.me.ns.furaffinity.exception.LoginRequiredException
 import ns.me.ns.furaffinity.repository.model.AbstractBaseJsoupResponse

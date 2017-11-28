@@ -1,6 +1,6 @@
 package ns.me.ns.furaffinity.exception
 
-import ns.me.ns.furaffinity.repository.model.remote.parser.JsoupParser
+import ns.me.ns.furaffinity.ds.webapi.parser.JsoupParser
 import javax.security.auth.login.LoginException
 import kotlin.reflect.KClass
 

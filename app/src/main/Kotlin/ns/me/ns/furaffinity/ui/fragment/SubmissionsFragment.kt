@@ -3,21 +3,18 @@ package ns.me.ns.furaffinity.ui.fragment
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.FragmentSubmissionsBinding
 import ns.me.ns.furaffinity.di.Injectable
 import ns.me.ns.furaffinity.ui.activity.FullViewActivity
 import ns.me.ns.furaffinity.ui.viewmodel.FullViewViewModel
 import ns.me.ns.furaffinity.ui.viewmodel.SubmissionsViewModel
-import ns.me.ns.furaffinity.util.BitmapUtil
 import javax.inject.Inject
 
 /**
@@ -47,6 +44,7 @@ class SubmissionsFragment : AbstractBaseFragment<SubmissionsViewModel>(), Inject
         super.onActivityCreated(savedInstanceState)
         binding.viewModel = viewModel
         (binding.recyclerView.layoutManager as? GridLayoutManager)?.let {
+            viewModel.submissionsAdapter.determinationCellHeight(activity, it.spanCount)
             it.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
                     return if (viewModel.submissionsAdapter.isHeader(position)) it.spanCount else 1
@@ -57,13 +55,7 @@ class SubmissionsFragment : AbstractBaseFragment<SubmissionsViewModel>(), Inject
 
         viewModel.adapterOnItemClickSubject.subscribe {
             val viewId = it.data.viewId ?: return@subscribe
-
-            val bitmap = ((it.view as? ImageView)?.drawable as? BitmapDrawable)?.bitmap
-            val keyCache = bitmap?.generationId?.toString()
-            keyCache?.let {
-                BitmapUtil.cacheMemory(it, bitmap)
-            }
-            startActivity(FullViewActivity.intent(activity, FullViewViewModel.Type.SUBMISSION, viewId, keyCache),
+            startActivity(FullViewActivity.intent(activity, FullViewViewModel.Type.Submission, viewId),
                     FullViewActivity.option(activity, it.view)
             )
         }.also { disposer.add(it) }

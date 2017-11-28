@@ -22,14 +22,17 @@
         <ns.me.ns.furaffinity.ui.InterceptTouchViewPager
             android:id="@+id/fullViewPager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            app:onInterceptDragListener="@{viewModel.onInterceptDragListener}"
+            app:onPageChangeListener="@{viewModel.onPageChangeListener}" />
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/transparent"
-            app:title="@{viewModel.full.imageElement.alt}" />
+            app:title="@{viewModel.view.imageElement.alt}" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/favoriteFloatingActionButton"
@@ -37,10 +40,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/material_padding"
-            android:onClick="@{viewModel.onClickFavorite}"
+            android:onClick="@{viewModel.onClickFloatingAction}"
             android:padding="0dp"
-            app:backgroundTint="@android:color/white"
-            app:icon="@{viewModel.actionIconResId}" />
+            app:backgroundTint="@android:color/white" />
 
     </android.support.design.widget.CoordinatorLayout>
 

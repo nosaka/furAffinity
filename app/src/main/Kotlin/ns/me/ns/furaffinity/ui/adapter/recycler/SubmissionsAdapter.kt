@@ -2,14 +2,16 @@ package ns.me.ns.furaffinity.ui.adapter.recycler
 
 import android.content.Context
 import android.databinding.DataBindingUtil
+import android.databinding.ObservableField
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.ListItemFooterBinding
 import ns.me.ns.furaffinity.databinding.ListItemSubmissionsContentsBinding
+import ns.me.ns.furaffinity.repository.model.ViewInterface
 import ns.me.ns.furaffinity.repository.model.local.Submission
-import ns.me.ns.furaffinity.repository.model.remote.model.entity.ViewElement
+import ns.me.ns.furaffinity.repository.model.remote.entity.ImageElement
 import ns.me.ns.furaffinity.ui.adapter.AbstractRecyclerViewAdapter
 
 /**
@@ -27,6 +29,11 @@ class SubmissionsAdapter(context: Context) : AbstractRecyclerViewAdapter<Submiss
     }
 
     /**
+     * セル高さ
+     */
+    private var cellHeight: Int? = null
+
+    /**
      * リロード要求
      */
     var onRequestReload: (() -> Unit)? = null
@@ -39,15 +46,11 @@ class SubmissionsAdapter(context: Context) : AbstractRecyclerViewAdapter<Submiss
     /**
      * データコンテンツViewModel
      */
-    class ContentsViewModel(value: Submission) : ViewElement() {
-        init {
-            viewId = value.viewId
-            name = value.name
+    class ContentsViewModel(value: Submission) : ViewInterface {
 
-            imageElement.src = value.src
-            imageElement.alt = value.alt
+        override var viewId: Int = value.viewId
 
-        }
+        override val imageElement: ObservableField<ImageElement> = value.imageElement
 
         var onItemSelected: View.OnClickListener? = null
     }
@@ -55,12 +58,12 @@ class SubmissionsAdapter(context: Context) : AbstractRecyclerViewAdapter<Submiss
     /**
      * データコンテンツ[AbstractRecyclerViewAdapter.ViewHolder]
      */
-    class ContentsViewHolder(itemView: View) : AbstractRecyclerViewAdapter.ViewHolder(itemView) {
+    class ContentsViewHolder(itemView: View, cellHeight: Int?) : AbstractRecyclerViewAdapter.ViewHolder(itemView) {
         val binding: ListItemSubmissionsContentsBinding = DataBindingUtil.bind(itemView)
 
         init {
             val lp = binding.imageView.layoutParams
-            lp.height = itemView.context.resources.displayMetrics.widthPixels / 3
+            lp.height = cellHeight ?: lp.height
             binding.imageView.layoutParams = lp
         }
     }
@@ -74,12 +77,11 @@ class SubmissionsAdapter(context: Context) : AbstractRecyclerViewAdapter<Submiss
 
     override fun dispatchDataViewType(position: Int): Int = TYPE_DATA_CONTENTS
 
-    override fun createDataViewHolder(inflater: LayoutInflater, parent: ViewGroup, dataViewType: Int): AbstractRecyclerViewAdapter.ViewHolder? {
-        return when (dataViewType) {
-            TYPE_DATA_CONTENTS -> ContentsViewHolder(inflater.inflate(R.layout.list_item_submissions_contents, parent, false))
-            else -> null
-        }
-    }
+    override fun createDataViewHolder(inflater: LayoutInflater, parent: ViewGroup, dataViewType: Int): AbstractRecyclerViewAdapter.ViewHolder? =
+            when (dataViewType) {
+                TYPE_DATA_CONTENTS -> ContentsViewHolder(inflater.inflate(R.layout.list_item_submissions_contents, parent, false), cellHeight)
+                else -> null
+            }
 
     override fun bindDataViewHolder(data: ContentsViewModel, viewHolder: AbstractRecyclerViewAdapter.ViewHolder, dataViewType: Int) {
         when (dataViewType) {
@@ -113,6 +115,13 @@ class SubmissionsAdapter(context: Context) : AbstractRecyclerViewAdapter<Submiss
      */
     fun setLoadingError(isError: Boolean) {
         error = isError
+    }
+
+    /**
+     * 高さの決定
+     */
+    fun determinationCellHeight(context: Context, count: Int) {
+        cellHeight = context.resources.displayMetrics.widthPixels / count
     }
 
 }

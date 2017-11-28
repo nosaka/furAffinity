@@ -38,7 +38,7 @@
             android:lines="1"
             android:paddingEnd="@dimen/material_padding"
             android:paddingStart="@dimen/material_padding"
-            android:text="@{viewModel.name}"
+            android:text="@{viewModel.imageElement.alt}"
             android:textColor="@android:color/white"
             android:textSize="@dimen/material_text_list_primary" />
 

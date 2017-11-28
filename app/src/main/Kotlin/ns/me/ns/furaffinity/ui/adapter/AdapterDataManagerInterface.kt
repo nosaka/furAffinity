@@ -1,7 +1,5 @@
 package ns.me.ns.furaffinity.ui.adapter
 
-import android.view.View
-
 /**
  * アダプタデータ管理インターフェース
  */
@@ -55,11 +53,4 @@ interface AdapterDataManagerInterface<Data> {
      */
     val dataCount: Int
 
-    /**
-     * データ取得
-     *
-     * @param itemView 要素[View]
-     * @return [Data]
-     */
-    fun getData(itemView: View): Data?
 }

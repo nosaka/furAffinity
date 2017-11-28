@@ -10,99 +10,62 @@ import android.view.MotionEvent
  */
 class InterceptTouchViewPager(context: Context, attrs: AttributeSet) : ViewPager(context, attrs) {
 
-    interface Listener {
+    interface OnInterceptDragListener {
         fun onStartDrag() {}
         fun onDragging(dx: Float, dy: Float) {}
         fun onFinishDrag(dx: Float, dy: Float) {}
     }
 
-    private var beginX: Float? = null
+    private var distanceX: Float = 0f
 
-    private var beginY: Float? = null
+    private var distanceY: Float = 0f
 
     private var prevDragX: Float? = null
 
     private var prevDragY: Float? = null
 
-    var listener: Listener? = null
-
-    var scrollState: Int = SCROLL_STATE_IDLE
-
-    private val onPageChangeListener = object : OnPageChangeListener {
-        override fun onPageScrollStateChanged(state: Int) {
-            scrollState = state
-        }
-
-        override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-            // 処理なし
-        }
-
-        override fun onPageSelected(position: Int) {
-            // 処理なし
-        }
-
-    }
+    private var onInterceptDragListener: OnInterceptDragListener? = null
 
     override fun onInterceptTouchEvent(e: MotionEvent): Boolean {
+        val result = super.onInterceptTouchEvent(e)
         synchronized(e) {
             when (e.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    listener?.onStartDrag()
-                    saveStartDrag(e)
+                    distanceX = 0f
+                    distanceY = 0f
+                    prevDragX = e.rawX
+                    prevDragY = e.rawY
+                    onInterceptDragListener?.onStartDrag()
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    val beginX = beginX ?: return false
-                    val beginY = beginY ?: return false
-                    val dx = e.rawX - beginX
-                    val dy = e.rawY - beginY
-                    listener?.onFinishDrag(dx, dy)
+                    onInterceptDragListener?.onFinishDrag(distanceX, distanceY)
                     // ドラッグ座標のクリア
-                    clearDrag()
+                    distanceX = 0f
+                    distanceY = 0f
+                    prevDragX = null
+                    prevDragY = null
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    if (scrollState != SCROLL_STATE_IDLE) return false
-                    val prevDragX = prevDragX ?: return false
-                    val prevDragY = prevDragY ?: return false
-                    val dx = e.rawX - prevDragX
-                    val dy = e.rawY - prevDragY
-                    listener?.onDragging(dx, dy)
-                    // 前回のイベントの座標を記録
-                    saveDragging(e)
+                    val prevRawX = prevDragX ?: return false
+                    val prevRawY = prevDragY ?: return false
+
+                    val dx = e.rawX - prevRawX
+                    val dy = e.rawY - prevRawY
+                    prevDragX = e.rawX
+                    prevDragY = e.rawY
+                    distanceX += dx
+                    distanceY += dy
+                    onInterceptDragListener?.onDragging(dx, dy)
                 }
             }
 
-            return super.onInterceptTouchEvent(e)
+            return result
         }
     }
 
-    override fun onAttachedToWindow() {
-        addOnPageChangeListener(onPageChangeListener)
-        super.onAttachedToWindow()
-    }
 
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        removeOnPageChangeListener(onPageChangeListener)
-    }
-
-    private fun saveStartDrag(e: MotionEvent) {
-        beginX = e.rawX
-        beginY = e.rawY
-        prevDragX = e.rawX
-        prevDragY = e.rawY
-
-    }
-
-    private fun saveDragging(e: MotionEvent) {
-        prevDragX = e.rawX
-        prevDragY = e.rawY
-    }
-
-    private fun clearDrag() {
-        beginX = null
-        beginY = null
-        prevDragX = null
-        prevDragY = null
+    fun setOnInterceptDragListener(listenerIntercept: OnInterceptDragListener) {
+        onInterceptDragListener = listenerIntercept
     }
 
 

@@ -1,5 +1,6 @@
 package ns.me.ns.furaffinity.ui.viewmodel
 
+import android.animation.ValueAnimator
 import android.app.Application
 import android.content.Intent
 import android.databinding.Observable
@@ -8,21 +9,17 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.provider.MediaStore
+import android.support.v4.view.ViewPager
 import android.view.View
-import com.github.chrisbanes.photoview.OnPhotoTapListener
-import com.squareup.picasso.Picasso
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import ns.me.ns.furaffinity.R
-import ns.me.ns.furaffinity.ds.webapi.AppWebApiService
-import ns.me.ns.furaffinity.exception.LoginRequiredException
 import ns.me.ns.furaffinity.repository.FavoriteRepository
 import ns.me.ns.furaffinity.repository.SubmissionRepository
+import ns.me.ns.furaffinity.repository.model.ViewInterface
 import ns.me.ns.furaffinity.repository.model.local.Favorite
-import ns.me.ns.furaffinity.repository.model.remote.Full
-import ns.me.ns.furaffinity.ui.ObservableDrawableTarget
-import ns.me.ns.furaffinity.ui.activity.LoginActivity
+import ns.me.ns.furaffinity.ui.InterceptTouchViewPager
 import ns.me.ns.furaffinity.ui.adapter.pager.FullViewPagerAdapter
 import ns.me.ns.furaffinity.util.BitmapUtil
 import ns.me.ns.furaffinity.util.LogUtil
@@ -32,11 +29,12 @@ import javax.inject.Inject
 class FullViewViewModel @Inject constructor(application: Application) : AbstractBaseViewModel(application) {
 
     enum class Type {
-        SUBMISSION, FAVORITE
+        Submission, Favorite
     }
 
-    @Inject
-    lateinit var service: AppWebApiService
+    enum class DragState {
+        Dragging, Finish
+    }
 
     @Inject
     lateinit var favoriteRepository: FavoriteRepository
@@ -45,63 +43,130 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
     lateinit var submissionRepository: SubmissionRepository
 
     val fullViewPagerAdapter: FullViewPagerAdapter by lazy {
-        FullViewPagerAdapter(application)
+        FullViewPagerAdapter(application).apply {
+            onPhotoTap = { viewId ->
+                systemUISubject.onNext(Unit)
+            }
+        }
     }
-
-    val imageChangeSubject: PublishSubject<Bitmap> = PublishSubject.create()
 
     val pageChangeSubject: PublishSubject<Int> = PublishSubject.create()
 
-    var actionIconResId: ObservableField<Int> = ObservableField()
+    val layoutChangeSubject: PublishSubject<Triple<DragState, Float, Float>> = PublishSubject.create()
+
+    val favoriteChangeSubject: PublishSubject<Boolean> = PublishSubject.create()
+
+    var returnLayoutAnimator: ValueAnimator? = null
+
+    var scrollState: Int = ViewPager.SCROLL_STATE_IDLE
+
+    val imageChangeSubject: PublishSubject<Bitmap> = PublishSubject.create()
 
     private val onPropertyChangedCallback: Observable.OnPropertyChangedCallback by lazy {
         object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable?, id: Int) {
                 when (observable) {
-                    viewId -> {
-                        getFull()
+                    view -> {
                         checkFavorite()
-                    }
-                    image -> {
-                        (image.get() as? BitmapDrawable)?.bitmap?.let {
+                        (view.get()?.image?.get() as? BitmapDrawable)?.bitmap?.let {
                             imageChangeSubject.onNext(it)
-                            imageChangeSubject.onComplete()
                         }
-                    }
-                    full -> {
-                        load(full.get()?.imageElement?.src)
+
                     }
                 }
             }
         }
     }
 
-    var viewId: ObservableField<Int> = ObservableField<Int>().apply {
+    var view: ObservableField<ViewInterface> = ObservableField<ViewInterface>().apply {
         addOnPropertyChangedCallback(onPropertyChangedCallback)
     }
 
-    val full: ObservableField<Full> = ObservableField<Full>().apply {
-        addOnPropertyChangedCallback(onPropertyChangedCallback)
+    val onInterceptDragListener = object : InterceptTouchViewPager.OnInterceptDragListener {
+
+        override fun onDragging(dx: Float, dy: Float) {
+            if (returnLayoutAnimator?.isRunning == true) return@onDragging
+            if (scrollState != ViewPager.SCROLL_STATE_IDLE) return@onDragging
+            layoutChangeSubject.onNext(Triple(DragState.Dragging, dx, dy))
+        }
+
+        override fun onFinishDrag(dx: Float, dy: Float) {
+            if (returnLayoutAnimator?.isRunning == true) return@onFinishDrag
+            layoutChangeSubject.onNext(Triple(DragState.Finish, dx, dy))
+        }
+
     }
 
-    val image: ObservableDrawableTarget = ObservableDrawableTarget().apply {
-        addOnPropertyChangedCallback(onPropertyChangedCallback)
+    val onPageChangeListener = object : ViewPager.OnPageChangeListener {
+
+        override fun onPageScrollStateChanged(state: Int) {
+            scrollState = state
+        }
+
+        override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+
+        override fun onPageSelected(position: Int) {
+            val item = fullViewPagerAdapter.getData(position)
+            view.set(item)
+        }
+
     }
 
-    val onPhotoTapListener = OnPhotoTapListener { _, _, _ ->
-        systemUISubject.onNext(Unit)
+    val onClickFloatingAction = View.OnClickListener { _ ->
+
     }
 
-    val onClickFavorite = View.OnClickListener { _ ->
-        val viewId = viewId.get() ?: return@OnClickListener
-        favoriteRepository.find(viewId)
-                .flatMapCompletable { favoriteRepository.remove(viewId) }
+    fun createViewPagerItems(type: Type, viewId: Int) {
+        when (type) {
+            Type.Submission -> {
+                submissionRepository.getLocal()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            fullViewPagerAdapter.setData(it)
+                            fullViewPagerAdapter.notifyDataSetChanged()
+                            val position = fullViewPagerAdapter.findPosition(viewId)
+                            if (position == 0) {
+                                val item = fullViewPagerAdapter.getData(position)
+                                view.set(item)
+                            } else {
+                                pageChangeSubject.onNext(position)
+                            }
+                        }, {
+                            LogUtil.e(it)
+                        })
+            }
+            Type.Favorite -> {
+                favoriteRepository.getLocal()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            fullViewPagerAdapter.setData(it)
+                            fullViewPagerAdapter.notifyDataSetChanged()
+                            val position = fullViewPagerAdapter.findPosition(viewId)
+                            if (position == 0) {
+                                val item = fullViewPagerAdapter.getData(position)
+                                view.set(item)
+                            } else {
+                                pageChangeSubject.onNext(position)
+                            }
+                        }, {
+                            LogUtil.e(it)
+                        })
+            }
+        }
+    }
+
+    fun changeFavorite() {
+        val view = view.get() ?: return
+        favoriteRepository.find(view.viewId)
+                .flatMapCompletable { favoriteRepository.remove(view.viewId) }
                 .onErrorResumeNext {
                     val favorite = Favorite()
-                    favorite.viewId = viewId
-                    favorite.src = full.get()?.imageElement?.src
-                    favorite.alt = full.get()?.imageElement?.alt
-                    val bitmap = (image.get() as? BitmapDrawable)?.bitmap
+                    favorite.viewId = view.viewId
+                    favorite.src = view.imageElement.get().src
+                    favorite.alt = view.imageElement.get().alt
+                    val bitmap = (view.image.get() as? BitmapDrawable)?.bitmap
                     bitmap?.let {
                         favorite.imageData = BitmapUtil.decodeByteArray(it)
                     }
@@ -117,41 +182,11 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
 
     }
 
-    fun createViewPagerItems(type: Type, viewId: Int?) {
-        when (type) {
-            Type.SUBMISSION -> {
-                submissionRepository.getLocal()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({
-                            fullViewPagerAdapter.items.addAll(it.map { FullViewPagerAdapter.ViewModel(it) })
-                            fullViewPagerAdapter.notifyDataSetChanged()
-                            val selection = fullViewPagerAdapter.items.indexOfFirst { it.viewId == viewId }
-                            pageChangeSubject.onNext(selection)
-                        }, {
-                            LogUtil.e(it)
-                        })
-            }
-            Type.FAVORITE -> {
-                favoriteRepository.getLocal()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({
-                            fullViewPagerAdapter.items.addAll(it.map { FullViewPagerAdapter.ViewModel(it) })
-                            fullViewPagerAdapter.notifyDataSetChanged()
-                            val selection = fullViewPagerAdapter.items.indexOfFirst { it.viewId == viewId }
-                            pageChangeSubject.onNext(selection)
-                        }, {
-                            LogUtil.e(it)
-                        })
-            }
-        }
-    }
 
     fun saveImage() {
-        val bitmap = (image.get() as? BitmapDrawable)?.bitmap ?: return
-        val viewId = viewId.get() ?: return
-        BitmapUtil.write(viewId.toString(), bitmap)
+        val view = view.get() ?: return@saveImage
+        val bitmap = (view.image.get() as? BitmapDrawable)?.bitmap ?: return@saveImage
+        BitmapUtil.write(view.viewId.toString(), bitmap)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
@@ -163,43 +198,35 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
     }
 
     fun shareImage() {
-        val bitmap = (image.get() as? BitmapDrawable)?.bitmap ?: return
-        val uri = MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, full.get()?.title, null)
+        val view = view.get() ?: return@shareImage
+        val bitmap = (view.image.get() as? BitmapDrawable)?.bitmap ?: return@shareImage
+        val uri = MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, view.imageElement.get()?.alt, null)
         startActivitySubject.onNext(Intent.createChooser(Intent(Intent.ACTION_SEND)
                 .putExtra(Intent.EXTRA_STREAM, Uri.parse(uri))
-                .setType("imageElement/jpeg"), context.getString(R.string.message_share_image)))
+                .setType("image/jpeg"), context.getString(R.string.message_share_image)))
 
     }
 
-
-    private fun load(url: String?) {
-        Picasso.with(context).load(url).placeholder(image.get()).into(image)
-    }
-
-    private fun getFull() {
-        val viewId = viewId.get() ?: return
-        service.getFull(viewId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    full.set(it)
-                }, {
-                    LogUtil.e(it)
-                    if (it is LoginRequiredException) {
-                        startActivitySubject.onNext(LoginActivity.intent(context))
-                    }
-                })
+    fun playReturnLayoutAnimator(view: View, from: Float, to: Float) {
+        returnLayoutAnimator = ValueAnimator.ofFloat(from, 0f)
+        returnLayoutAnimator?.addUpdateListener { animation ->
+            (animation.animatedValue as? Float)?.let {
+                view.y = it
+            }
+        }
+        returnLayoutAnimator?.setTarget(view)
+        returnLayoutAnimator?.start()
     }
 
     private fun checkFavorite() {
-        val viewId = viewId.get() ?: return
-        favoriteRepository.find(viewId)
+        val view = view.get() ?: return@checkFavorite
+        favoriteRepository.find(view.viewId)
                 .map { true }
                 .onErrorReturn { false }
                 .observeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    actionIconResId.set(if (it) R.drawable.fab_favorite_border else R.drawable.fab_favorite)
+                    favoriteChangeSubject.onNext(it)
                 }, {
                     LogUtil.e(it)
                 })

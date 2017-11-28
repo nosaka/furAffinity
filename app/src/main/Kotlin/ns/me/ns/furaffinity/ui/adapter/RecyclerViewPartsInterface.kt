@@ -23,8 +23,7 @@ interface RecyclerViewPartsInterface {
 
     fun isHeader(position: Int): Boolean
 
-    fun getPosition(itemView: View): Int {
-        return (itemView.layoutParams as RecyclerView.LayoutParams).viewAdapterPosition
-    }
+    fun getPosition(itemView: View): Int =
+            (itemView.layoutParams as RecyclerView.LayoutParams).viewAdapterPosition
 
 }

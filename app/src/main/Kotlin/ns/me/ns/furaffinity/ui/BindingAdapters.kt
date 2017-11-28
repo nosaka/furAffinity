@@ -5,6 +5,7 @@ import android.databinding.BindingMethod
 import android.databinding.BindingMethods
 import android.support.design.widget.BottomNavigationView
 import android.support.design.widget.FloatingActionButton
+import android.support.v4.view.ViewPager
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
@@ -27,7 +28,8 @@ import ns.me.ns.furaffinity.util.LogUtil
         BindingMethod(type = BottomNavigationView::class, attribute = "onNavigationItemSelectedListener", method = "setOnNavigationItemSelectedListener"),
         BindingMethod(type = FloatingActionButton::class, attribute = "icon", method = "setImageResource"),
         BindingMethod(type = SwipeRefreshLayout::class, attribute = "onRefreshListener", method = "setOnRefreshListener"),
-        BindingMethod(type = SwipeRefreshLayout::class, attribute = "refreshing", method = "setRefreshing")
+        BindingMethod(type = SwipeRefreshLayout::class, attribute = "refreshing", method = "setRefreshing"),
+        BindingMethod(type = InterceptTouchViewPager::class, attribute = "onInterceptDragListener", method = "setOnInterceptDragListener")
 )
 object BindingAdapters {
 
@@ -81,5 +83,12 @@ object BindingAdapters {
         (recyclerView.layoutManager as? LinearLayoutManager)?.let {
             recyclerView.addItemDecoration(ItemDecorationLinear(it.orientation, dividerSize))
         }
+    }
+
+    @BindingAdapter("onPageChangeListener")
+    @JvmStatic
+    fun setOnPageChangeListener(viewPager: ViewPager, listener: ViewPager.OnPageChangeListener) {
+        viewPager.removeOnPageChangeListener(listener)
+        viewPager.addOnPageChangeListener(listener)
     }
 }

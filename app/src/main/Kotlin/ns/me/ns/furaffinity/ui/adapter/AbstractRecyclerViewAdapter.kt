@@ -318,7 +318,7 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
     override val dataCount: Int
         get() = items.size
 
-    override fun getData(itemView: View): Data? {
+    fun getData(itemView: View): Data? {
         val position = getPosition(itemView)
         return if (position != RecyclerView.NO_POSITION
                 && !isPositionHeader(position)

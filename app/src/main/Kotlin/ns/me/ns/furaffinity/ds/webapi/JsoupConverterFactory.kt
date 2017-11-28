@@ -1,6 +1,6 @@
 package ns.me.ns.furaffinity.ds.webapi
 
-import ns.me.ns.furaffinity.repository.model.remote.parser.JsoupParser
+import ns.me.ns.furaffinity.ds.webapi.parser.JsoupParser
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit
