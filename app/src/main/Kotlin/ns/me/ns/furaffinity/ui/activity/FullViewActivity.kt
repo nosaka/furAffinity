@@ -29,14 +29,17 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
 
         private const val KEY_BUNDLE_VIEW_ID = "view_id"
 
+        private const val KEY_BUNDLE_ACCOUNT = "account"
+
         private const val KEY_SHARED_IMAGE = "shared_image"
 
         // Y軸最低スワイプ距離
         private const val FINISH_DISTANCE = -240
 
-        fun intent(context: Context, type: FullViewViewModel.Type, viewId: Int) = Intent(context, FullViewActivity::class.java).apply {
+        fun intent(context: Context, type: FullViewViewModel.Type, viewId: Int, account: String? = null) = Intent(context, FullViewActivity::class.java).apply {
             putExtra(KEY_BUNDLE_TYPE, type)
             putExtra(KEY_BUNDLE_VIEW_ID, viewId)
+            putExtra(KEY_BUNDLE_ACCOUNT, account)
         }
 
         fun option(activity: Activity, view: View): Bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, view, KEY_SHARED_IMAGE).toBundle()
@@ -45,19 +48,30 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
+    val argmentType by lazy {
+        intent.getSerializableExtra(KEY_BUNDLE_TYPE) as FullViewViewModel.Type
+    }
+    val argmentViewId by lazy {
+        intent.getIntExtra(KEY_BUNDLE_VIEW_ID, -1)
+    }
+    val argmentAccount by lazy {
+        intent.getStringExtra(KEY_BUNDLE_ACCOUNT)
+    }
+
     override val viewModel: FullViewViewModel by lazy {
         ViewModelProviders.of(this, viewModelFactory).get(FullViewViewModel::class.java).apply {
-            createViewPagerItems(intent.getSerializableExtra(KEY_BUNDLE_TYPE) as FullViewViewModel.Type, intent.getIntExtra(KEY_BUNDLE_VIEW_ID, -1))
+            createViewPagerItems(argmentType, argmentViewId, argmentAccount)
         }
     }
 
-    private lateinit var binding: ActivityFullViewBinding
+    private val binding: ActivityFullViewBinding by lazy {
+        DataBindingUtil.setContentView<ActivityFullViewBinding>(this, R.layout.activity_full_view)
+    }
 
     private var favorite: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_full_view)
         binding.viewModel = viewModel
 
         setSupportActionBar(binding.toolbar)
@@ -110,11 +124,6 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
         if (favorite) menuInflater.inflate(R.menu.full_view_unfavorite, menu) else menuInflater.inflate(R.menu.full_view_favorite, menu)
         return true
     }
-
-    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        return super.onPrepareOptionsMenu(menu)
-    }
-
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {

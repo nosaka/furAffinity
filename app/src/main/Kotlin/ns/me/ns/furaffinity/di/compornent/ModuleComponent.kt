@@ -5,6 +5,7 @@ import ns.me.ns.furaffinity.di.modules.ContextModule
 import ns.me.ns.furaffinity.di.modules.RepositoryModule
 import ns.me.ns.furaffinity.di.modules.WebModule
 import ns.me.ns.furaffinity.ui.adapter.pager.FullViewPagerAdapter
+import ns.me.ns.furaffinity.ui.adapter.recycler.FavoriteAdapter
 import javax.inject.Singleton
 
 /**
@@ -21,5 +22,6 @@ interface ModuleComponent {
         fun build(): ModuleComponent
     }
 
+    fun inject(adapter: FavoriteAdapter)
     fun inject(adapter: FullViewPagerAdapter)
 }

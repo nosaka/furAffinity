@@ -11,6 +11,8 @@
             type="ns.me.ns.furaffinity.ui.viewmodel.FullViewViewModel" />
 
         <import type="android.view.View" />
+
+        <import type="ns.me.ns.furaffinity.ui.viewmodel.FullViewViewModel.Type" />
     </data>
 
     <android.support.design.widget.CoordinatorLayout
@@ -42,6 +44,7 @@
             android:layout_margin="@dimen/material_padding"
             android:onClick="@{viewModel.onClickFloatingAction}"
             android:padding="0dp"
+            android:src="@drawable/fab_account"
             app:backgroundTint="@android:color/white" />
 
     </android.support.design.widget.CoordinatorLayout>

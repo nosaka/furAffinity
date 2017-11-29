@@ -12,6 +12,8 @@ interface ViewInterface {
 
     var viewId: Int
 
+    var name: String?
+
     val image: ObservableDrawableTarget
         get() = ObservableDrawableTarget()
 

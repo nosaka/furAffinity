@@ -11,6 +11,10 @@ class FullParser : JsoupParser<Full> {
 
     override val requiredLogin: Boolean = true
 
+    companion object {
+        val accountRegex = "/user/(.*)/".toRegex()
+    }
+
     @Suppress("UNCHECKED_CAST")
     override fun parse(document: Document, data: Full?): Full? {
         val result = data ?: return null
@@ -26,8 +30,16 @@ class FullParser : JsoupParser<Full> {
         // user
         val userTags = document.getElementsByAttributeValueMatching("href", "/user/.*/")
         val userTag = userTags?.firstOrNull { it.getElementById("my-username") == null }
-        result.userElement.name = userTag?.text()
-        result.userElement.href = userTag?.attr("href")
+        val href = userTag?.attr("href")
+        href?.let {
+            GalleryParser.accountRegex.matchEntire(it)?.groups?.let {
+                if (it.size == 2) {
+                    result.userElement.account = it[1]?.value
+                }
+            }
+        }
+
+
 
         return result
     }

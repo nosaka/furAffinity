@@ -9,6 +9,4 @@ import ns.me.ns.furaffinity.repository.model.remote.entity.ViewElement
 class MsgSubmissions : AbstractBaseJsoupResponse() {
 
     val viewElements = ArrayList<ViewElement>()
-
-    var pathMore: String? = null
 }

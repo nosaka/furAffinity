@@ -26,6 +26,9 @@ class FavoriteViewModel @Inject constructor(application: Application) : Abstract
                 adapterOnItemClickSubject.onNext(it)
             }
             setFooterDisplay(false)
+            onEmptyItemPublishSubject.subscribe {
+                refreshAdapter()
+            }
         }
     }
 

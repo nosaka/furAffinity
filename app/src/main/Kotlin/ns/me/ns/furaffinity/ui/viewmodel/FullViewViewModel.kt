@@ -16,10 +16,11 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.repository.FavoriteRepository
+import ns.me.ns.furaffinity.repository.GalleryRepository
 import ns.me.ns.furaffinity.repository.SubmissionRepository
 import ns.me.ns.furaffinity.repository.model.ViewInterface
-import ns.me.ns.furaffinity.repository.model.local.Favorite
 import ns.me.ns.furaffinity.ui.InterceptTouchViewPager
+import ns.me.ns.furaffinity.ui.activity.GalleryActivity
 import ns.me.ns.furaffinity.ui.adapter.pager.FullViewPagerAdapter
 import ns.me.ns.furaffinity.util.BitmapUtil
 import ns.me.ns.furaffinity.util.LogUtil
@@ -29,7 +30,7 @@ import javax.inject.Inject
 class FullViewViewModel @Inject constructor(application: Application) : AbstractBaseViewModel(application) {
 
     enum class Type {
-        Submission, Favorite
+        Submission, Favorite, Gallery
     }
 
     enum class DragState {
@@ -42,9 +43,12 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
     @Inject
     lateinit var submissionRepository: SubmissionRepository
 
+    @Inject
+    lateinit var galleryRepository: GalleryRepository
+
     val fullViewPagerAdapter: FullViewPagerAdapter by lazy {
         FullViewPagerAdapter(application).apply {
-            onPhotoTap = { viewId ->
+            onPhotoTap = {
                 systemUISubject.onNext(Unit)
             }
         }
@@ -113,10 +117,12 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
     }
 
     val onClickFloatingAction = View.OnClickListener { _ ->
-
+        view.get()?.userElement?.get()?.account?.let {
+            startActivitySubject.onNext(GalleryActivity.intent(context, it))
+        }
     }
 
-    fun createViewPagerItems(type: Type, viewId: Int) {
+    fun createViewPagerItems(type:Type, viewId: Int, account: String? = null) {
         when (type) {
             Type.Submission -> {
                 submissionRepository.getLocal()
@@ -154,6 +160,28 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
                             LogUtil.e(it)
                         })
             }
+            FullViewViewModel.Type.Gallery -> {
+                account ?: return
+                galleryRepository.getLocal(account)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            fullViewPagerAdapter.setData(it)
+                            fullViewPagerAdapter.notifyDataSetChanged()
+                            val position = fullViewPagerAdapter.findPosition(viewId)
+                            if (position == 0) {
+                                val item = fullViewPagerAdapter.getData(position)
+                                view.set(item)
+                            } else {
+                                pageChangeSubject.onNext(position)
+                            }
+                        }, {
+                            LogUtil.e(it)
+                        })
+            }
+            else -> {
+                // 処理なし
+            }
         }
     }
 
@@ -162,15 +190,8 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
         favoriteRepository.find(view.viewId)
                 .flatMapCompletable { favoriteRepository.remove(view.viewId) }
                 .onErrorResumeNext {
-                    val favorite = Favorite()
-                    favorite.viewId = view.viewId
-                    favorite.src = view.imageElement.get().src
-                    favorite.alt = view.imageElement.get().alt
                     val bitmap = (view.image.get() as? BitmapDrawable)?.bitmap
-                    bitmap?.let {
-                        favorite.imageData = BitmapUtil.decodeByteArray(it)
-                    }
-                    return@onErrorResumeNext favoriteRepository.save(favorite)
+                    return@onErrorResumeNext favoriteRepository.save(view, bitmap)
                 }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

@@ -46,9 +46,8 @@ class SubmissionsFragment : AbstractBaseFragment<SubmissionsViewModel>(), Inject
         (binding.recyclerView.layoutManager as? GridLayoutManager)?.let {
             viewModel.submissionsAdapter.determinationCellHeight(activity, it.spanCount)
             it.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int {
-                    return if (viewModel.submissionsAdapter.isHeader(position)) it.spanCount else 1
-                }
+                override fun getSpanSize(position: Int): Int =
+                        if (viewModel.submissionsAdapter.isHeader(position)) it.spanCount else 1
             }
         }
         binding.recyclerView.adapter = viewModel.submissionsAdapter

@@ -14,7 +14,7 @@ class MsgSubmissionsParser : JsoupParser<MsgSubmissions> {
     override val requiredLogin: Boolean = true
 
     companion object {
-        val pathMoreRegex = "/msg/submissions/(.*)".toRegex()
+        val accountRegex = "/user/(.*)/".toRegex()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -29,15 +29,6 @@ class MsgSubmissionsParser : JsoupParser<MsgSubmissions> {
             }
         }
 
-
-        document.selectFirst("a.more:not(.prev), a.more-half:not(.prev)")?.attr("href")?.let {
-            pathMoreRegex.matchEntire(it)?.groups?.let {
-                if (it.size == 2) {
-                    result.pathMore = it[1]?.value
-                }
-            }
-        }
-
         return result
     }
 
@@ -47,15 +38,21 @@ class MsgSubmissionsParser : JsoupParser<MsgSubmissions> {
         figure.getElementsByTag("figcaption")?.first()?.let {
             // view Id
             result.viewId = it.getElementsByTag("input")?.`val`()?.toIntOrNull()
-            // name
+            // account
             val viewTag = it.getElementsByAttributeValueMatching("href", "/view/.*/")
             result.name = viewTag?.attr("title")
 
             // user
             val userTags = it.getElementsByAttributeValueMatching("href", "/user/.*/")
             val userTag = userTags?.firstOrNull { it.getElementById("my-username") == null }
-            result.userElement.name = userTag?.text()
-            result.userElement.href = userTag?.attr("href")
+            val href = userTag?.attr("href")
+            href?.let {
+                accountRegex.matchEntire(it)?.groups?.let {
+                    if (it.size == 2) {
+                        result.userElement.account = it[1]?.value
+                    }
+                }
+            }
         }
 
         figure.getElementsByTag("img")?.first()?.let {

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/favorite"
-        android:icon="@drawable/fab_favorite_border"
+        android:icon="@drawable/ic_action_favorite_border"
         android:title="@string/action_favorite"
         app:showAsAction="ifRoom" />
 
@@ -11,11 +11,11 @@
         android:id="@+id/save"
         android:icon="@drawable/ic_action_save"
         android:title="@string/action_save"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/share"
         android:icon="@drawable/ic_action_share"
         android:title="@string/action_share"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 
 </menu>

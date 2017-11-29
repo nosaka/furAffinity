@@ -9,7 +9,5 @@ abstract class AbstractBaseJsoupResponse {
 
     var isLogin: Boolean = false
 
-    override fun toString(): String {
-        return ToStringBuilder.reflectionToString(this)
-    }
+    override fun toString(): String = ToStringBuilder.reflectionToString(this)
 }

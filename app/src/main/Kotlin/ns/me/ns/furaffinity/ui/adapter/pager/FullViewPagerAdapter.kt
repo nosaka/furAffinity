@@ -46,11 +46,13 @@ class FullViewPagerAdapter(val context: Context) : PagerAdapter(), AdapterDataMa
 
         override var viewId: Int = value.viewId
 
+        override var name: String? = value.name
+
         override val image: ObservableDrawableTarget = value.image
 
         override val imageElement: ObservableField<ImageElement> = value.imageElement
 
-        override val userElement: ObservableField<UserElement> = ObservableField<UserElement>()
+        override val userElement: ObservableField<UserElement> = value.userElement
 
         private val onPropertyChangedCallback: Observable.OnPropertyChangedCallback by lazy {
             object : Observable.OnPropertyChangedCallback() {
@@ -59,7 +61,7 @@ class FullViewPagerAdapter(val context: Context) : PagerAdapter(), AdapterDataMa
                         full -> {
                             loadImage()
                             full.get()?.userElement?.let {
-                                userElement.set(UserElement(it.name, it.href))
+                                userElement.set(UserElement(it.account))
                             }
                         }
                     }
@@ -115,12 +117,14 @@ class FullViewPagerAdapter(val context: Context) : PagerAdapter(), AdapterDataMa
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
 
         // リストから取得
-        val item = items[position]
+        val viewModel = items[position]
         val binding: ListItemFullViewBinding = DataBindingUtil.inflate(layoutInflater, R.layout.list_item_full_view, container, false)
         binding.photoView.scale = 1f
-        binding.viewModel = item
+        binding.viewModel = viewModel
 
-        binding.viewModel.getFullIfNecessary()
+        viewModel.getFullIfNecessary()
+
+
 
         container.addView(binding.root)
         return binding.root

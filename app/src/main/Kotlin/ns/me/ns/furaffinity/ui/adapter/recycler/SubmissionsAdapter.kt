@@ -12,6 +12,8 @@ import ns.me.ns.furaffinity.databinding.ListItemSubmissionsContentsBinding
 import ns.me.ns.furaffinity.repository.model.ViewInterface
 import ns.me.ns.furaffinity.repository.model.local.Submission
 import ns.me.ns.furaffinity.repository.model.remote.entity.ImageElement
+import ns.me.ns.furaffinity.repository.model.remote.entity.UserElement
+import ns.me.ns.furaffinity.ui.ObservableDrawableTarget
 import ns.me.ns.furaffinity.ui.adapter.AbstractRecyclerViewAdapter
 
 /**
@@ -50,7 +52,13 @@ class SubmissionsAdapter(context: Context) : AbstractRecyclerViewAdapter<Submiss
 
         override var viewId: Int = value.viewId
 
+        override var name: String? = value.name
+
+        override val image: ObservableDrawableTarget = value.image
+
         override val imageElement: ObservableField<ImageElement> = value.imageElement
+
+        override val userElement: ObservableField<UserElement> = ObservableField<UserElement>()
 
         var onItemSelected: View.OnClickListener? = null
     }

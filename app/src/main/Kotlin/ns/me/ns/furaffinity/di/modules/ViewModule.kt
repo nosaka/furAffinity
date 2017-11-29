@@ -3,6 +3,7 @@ package ns.me.ns.furaffinity.di.modules
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import ns.me.ns.furaffinity.ui.activity.FullViewActivity
+import ns.me.ns.furaffinity.ui.activity.GalleryActivity
 import ns.me.ns.furaffinity.ui.activity.LoginActivity
 import ns.me.ns.furaffinity.ui.activity.MainActivity
 import ns.me.ns.furaffinity.ui.fragment.FavoriteFragment
@@ -22,6 +23,9 @@ abstract class ViewModule {
 
     @ContributesAndroidInjector(modules = arrayOf(ViewBindModelModule::class))
     internal abstract fun contributeFullViewActivity(): FullViewActivity
+
+    @ContributesAndroidInjector(modules = arrayOf(ViewBindModelModule::class))
+    internal abstract fun contributeGalleryActivity(): GalleryActivity
 
     @ContributesAndroidInjector(modules = arrayOf(ViewBindModelModule::class))
     internal abstract fun contributeSubmissionsFragment(): SubmissionsFragment

@@ -11,4 +11,9 @@
         android:summary="delete all Submissions."
         android:title="delete all Submissions" />
 
+    <Preference
+        android:key="deleteGallery"
+        android:summary="delete all Gallery."
+        android:title="delete all Gallery" />
+
 </PreferenceScreen>

@@ -28,7 +28,19 @@ class InterceptTouchViewPager(context: Context, attrs: AttributeSet) : ViewPager
 
     override fun onInterceptTouchEvent(e: MotionEvent): Boolean {
         val result = super.onInterceptTouchEvent(e)
+
         synchronized(e) {
+
+            if (e.pointerCount != 1) {
+                onInterceptDragListener?.onFinishDrag(0f, 0f)
+                // ドラッグ座標のクリア
+                distanceX = 0f
+                distanceY = 0f
+                prevDragX = null
+                prevDragY = null
+                return result
+            }
+
             when (e.action) {
                 MotionEvent.ACTION_DOWN -> {
                     distanceX = 0f

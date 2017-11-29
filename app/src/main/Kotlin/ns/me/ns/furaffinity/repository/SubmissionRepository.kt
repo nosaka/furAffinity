@@ -111,6 +111,7 @@ class SubmissionRepository @Inject constructor(private val service: AppWebApiSer
         entity.name = value.name
         entity.src = value.imageElement.src
         entity.alt = value.imageElement.alt
+        entity.account = value.userElement.account
         return entity
     }
 

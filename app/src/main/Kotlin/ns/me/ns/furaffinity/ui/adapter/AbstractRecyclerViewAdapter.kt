@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import io.reactivex.subjects.PublishSubject
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * 抽象RecyclerViewAdapter
@@ -318,7 +319,11 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
     override val dataCount: Int
         get() = items.size
 
-    fun getData(itemView: View): Data? {
+    override fun isFooter(position: Int): Boolean = isPositionFooter(position)
+
+    override fun isHeader(position: Int): Boolean = isPositionHeader(position)
+
+    open fun getData(itemView: View): Data? {
         val position = getPosition(itemView)
         return if (position != RecyclerView.NO_POSITION
                 && !isPositionHeader(position)
@@ -327,13 +332,9 @@ abstract class AbstractRecyclerViewAdapter<Data>(context: Context) :
         } else null
     }
 
-    override fun isFooter(position: Int): Boolean {
-        return isPositionFooter(position)
+    open fun removeData(data: Data) {
+        items.remove(data)
     }
 
-    override fun isHeader(position: Int): Boolean {
-        return isPositionHeader(position)
-    }
-
-
+    open fun getDataList(): ArrayList<Data> = ArrayList(items)
 }

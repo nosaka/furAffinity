@@ -35,6 +35,11 @@ internal abstract class ViewBindModelModule {
 
     @Binds
     @IntoMap
+    @ViewModelKey(GalleryViewModel::class)
+    abstract fun bindGalleryViewModel(viewModel: GalleryViewModel): ViewModel
+
+    @Binds
+    @IntoMap
     @ViewModelKey(SubmissionsViewModel::class)
     abstract fun bindSubmissionsViewModel(viewModel: SubmissionsViewModel): ViewModel
 

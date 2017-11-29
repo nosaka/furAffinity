@@ -11,31 +11,42 @@
 
     </data>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?android:attr/selectableItemBackground"
-        android:onClick="@{viewModel.onItemSelected}"
-        android:orientation="vertical">
+        android:onClick="@{viewModel.onItemSelected}">
 
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
+            android:minHeight="240dp"
             android:scaleType="centerCrop"
             app:loadImg="@{viewModel.imageData}"
             tools:ignore="ContentDescription" />
 
+        <ImageView
+            android:id="@+id/closeImageView"
+            android:onClick="@{viewModel.onCloseClick}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/selector_close" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="48dp"
+            android:layout_below="@+id/imageView"
             android:background="@color/blackTransparent"
             android:ellipsize="end"
-            android:gravity="center_vertical"
             android:lines="1"
             android:paddingEnd="@dimen/material_padding"
             android:paddingStart="@dimen/material_padding"
@@ -43,6 +54,6 @@
             android:textColor="@android:color/white"
             android:textSize="@dimen/material_text_list_primary" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
 </layout>

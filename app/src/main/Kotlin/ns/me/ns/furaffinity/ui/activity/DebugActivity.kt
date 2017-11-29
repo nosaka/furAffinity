@@ -9,6 +9,7 @@ import android.widget.Toast
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.ds.dao.AppDatabase
 import ns.me.ns.furaffinity.ds.dao.FavoriteDao
+import ns.me.ns.furaffinity.ds.dao.GalleryDao
 import ns.me.ns.furaffinity.ds.dao.SubmissionDao
 import ns.me.ns.furaffinity.util.ToastUtil
 
@@ -37,6 +38,10 @@ class DebugActivity : AppCompatActivity() {
             AppDatabase.getDatabase(activity).submissionDao()
         }
 
+        private val galleryDao: GalleryDao by lazy {
+            AppDatabase.getDatabase(activity).galleryDao()
+        }
+
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             addPreferencesFromResource(R.xml.debug_preferences)
@@ -56,6 +61,12 @@ class DebugActivity : AppCompatActivity() {
             findPreference("deleteSubmissions").setOnPreferenceClickListener {
                 submissionDao.deleteAll()
                 ToastUtil.showToast(activity, "delete all Submissions.", Toast.LENGTH_SHORT)
+                return@setOnPreferenceClickListener true
+            }
+
+            findPreference("deleteGallery").setOnPreferenceClickListener {
+                galleryDao.deleteAll()
+                ToastUtil.showToast(activity, "delete all Gallery.", Toast.LENGTH_SHORT)
                 return@setOnPreferenceClickListener true
             }
 
