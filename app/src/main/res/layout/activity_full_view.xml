@@ -42,10 +42,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/material_padding"
+            android:backgroundTint="@android:color/white"
             android:onClick="@{viewModel.onClickFloatingAction}"
-            android:padding="0dp"
-            android:src="@drawable/fab_account"
-            app:backgroundTint="@android:color/white" />
+            android:src="@{viewModel.accountImage}"
+            app:borderWidth="0dp" />
 
     </android.support.design.widget.CoordinatorLayout>
 

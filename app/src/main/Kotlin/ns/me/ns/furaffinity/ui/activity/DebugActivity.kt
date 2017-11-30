@@ -7,7 +7,7 @@ import android.preference.PreferenceFragment
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import ns.me.ns.furaffinity.R
-import ns.me.ns.furaffinity.ds.dao.AppDatabase
+import ns.me.ns.furaffinity.ds.dao.DiscDatabase
 import ns.me.ns.furaffinity.ds.dao.FavoriteDao
 import ns.me.ns.furaffinity.ds.dao.GalleryDao
 import ns.me.ns.furaffinity.ds.dao.SubmissionDao
@@ -31,15 +31,15 @@ class DebugActivity : AppCompatActivity() {
     class DebugFragment : PreferenceFragment() {
 
         private val favoriteDao: FavoriteDao by lazy {
-            AppDatabase.getDatabase(activity).favoriteDao()
+            DiscDatabase.getDatabase(activity).favoriteDao()
         }
 
         private val submissionDao: SubmissionDao by lazy {
-            AppDatabase.getDatabase(activity).submissionDao()
+            DiscDatabase.getDatabase(activity).submissionDao()
         }
 
         private val galleryDao: GalleryDao by lazy {
-            AppDatabase.getDatabase(activity).galleryDao()
+            DiscDatabase.getDatabase(activity).galleryDao()
         }
 
         override fun onCreate(savedInstanceState: Bundle?) {

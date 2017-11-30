@@ -158,13 +158,27 @@ class FullViewActivity : AbstractBaseActivity<FullViewViewModel>(), Injectable {
     override fun showSystemUI() {
         super.showSystemUI()
         binding.toolbar.visibility = View.VISIBLE
-        binding.favoriteFloatingActionButton.show()
+        when (argmentType) {
+            FullViewViewModel.Type.Gallery -> {
+                binding.favoriteFloatingActionButton.hide()
+            }
+            else -> {
+                binding.favoriteFloatingActionButton.show()
+            }
+        }
     }
 
     override fun hideSystemUI() {
         super.hideSystemUI()
         binding.toolbar.visibility = View.INVISIBLE
-        binding.favoriteFloatingActionButton.hide()
+        when (argmentType) {
+            FullViewViewModel.Type.Gallery -> {
+                binding.favoriteFloatingActionButton.hide()
+            }
+            else -> {
+                binding.favoriteFloatingActionButton.hide()
+            }
+        }
     }
 
 }

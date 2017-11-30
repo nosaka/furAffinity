@@ -23,7 +23,7 @@ class LoginManager private constructor() : PreferencesHelper {
         val value = getString(context, KEY_COOKIE, null) ?: return emptyList()
         return value.split(";").map { it.trim().split("=") }.filter { it.count() == 2 }.map {
             return@map Cookie.Builder()
-                    .domain(Constants.DOMAIN)
+                    .domain(Constants.WEB_DOMAIN)
                     .name(it[0])
                     .value(it[1])
                     .build()

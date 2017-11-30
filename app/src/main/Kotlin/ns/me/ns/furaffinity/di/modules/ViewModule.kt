@@ -6,6 +6,7 @@ import ns.me.ns.furaffinity.ui.activity.FullViewActivity
 import ns.me.ns.furaffinity.ui.activity.GalleryActivity
 import ns.me.ns.furaffinity.ui.activity.LoginActivity
 import ns.me.ns.furaffinity.ui.activity.MainActivity
+import ns.me.ns.furaffinity.ui.fragment.BrowseFragment
 import ns.me.ns.furaffinity.ui.fragment.FavoriteFragment
 import ns.me.ns.furaffinity.ui.fragment.SubmissionsFragment
 
@@ -26,6 +27,9 @@ abstract class ViewModule {
 
     @ContributesAndroidInjector(modules = arrayOf(ViewBindModelModule::class))
     internal abstract fun contributeGalleryActivity(): GalleryActivity
+
+    @ContributesAndroidInjector(modules = arrayOf(ViewBindModelModule::class))
+    internal abstract fun contributeBrowseFragment(): BrowseFragment
 
     @ContributesAndroidInjector(modules = arrayOf(ViewBindModelModule::class))
     internal abstract fun contributeSubmissionsFragment(): SubmissionsFragment

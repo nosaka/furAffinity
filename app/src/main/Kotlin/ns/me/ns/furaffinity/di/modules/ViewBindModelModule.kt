@@ -40,6 +40,11 @@ internal abstract class ViewBindModelModule {
 
     @Binds
     @IntoMap
+    @ViewModelKey(BrowseViewModel::class)
+    abstract fun bindBrowseViewModel(viewModel: BrowseViewModel): ViewModel
+
+    @Binds
+    @IntoMap
     @ViewModelKey(SubmissionsViewModel::class)
     abstract fun bindSubmissionsViewModel(viewModel: SubmissionsViewModel): ViewModel
 

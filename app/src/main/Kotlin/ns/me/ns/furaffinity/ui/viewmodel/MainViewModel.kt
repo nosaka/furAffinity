@@ -1,27 +1,21 @@
 package ns.me.ns.furaffinity.ui.viewmodel
 
 import android.app.Application
-import android.databinding.ObservableField
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
-import android.view.View
+import android.util.SparseArray
 import io.reactivex.subjects.PublishSubject
 import ns.me.ns.furaffinity.R
+import ns.me.ns.furaffinity.ui.fragment.BrowseFragment
 import ns.me.ns.furaffinity.ui.fragment.FavoriteFragment
 import ns.me.ns.furaffinity.ui.fragment.SubmissionsFragment
-import java.util.*
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(application: Application) : AbstractBaseViewModel(application) {
 
     val navigationItemSubject: PublishSubject<Fragment> = PublishSubject.create()
 
-    val changeColorSubject: PublishSubject<Int> = PublishSubject.create()
-
-    val errro =  ObservableField<String>()
-
-    private val fragments = HashMap<Int, Fragment>()
-
+    private val fragments = SparseArray<Fragment>()
 
     val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener {
 
@@ -33,7 +27,7 @@ class MainViewModel @Inject constructor(application: Application) : AbstractBase
 
         val fragment: Fragment = when (it.itemId) {
             R.id.navigation_home -> {
-                SubmissionsFragment.instance()
+                BrowseFragment.instance()
             }
             R.id.navigation_submissions -> {
                 SubmissionsFragment.instance()
@@ -49,5 +43,11 @@ class MainViewModel @Inject constructor(application: Application) : AbstractBase
         navigationItemSubject.onNext(fragment)
 
         return@OnNavigationItemSelectedListener true
+    }
+
+    fun getFirstFragment(): Fragment {
+        val first = BrowseFragment.instance()
+        fragments.put(R.id.navigation_home, first)
+        return first
     }
 }

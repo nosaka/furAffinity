@@ -48,9 +48,8 @@ class AppWebApiClient {
             // 処理なし
         }
 
-        override fun loadForRequest(url: HttpUrl?): List<Cookie>? {
-            return LoginManager.instance.getCookie(context)
-        }
+        override fun loadForRequest(url: HttpUrl?): List<Cookie>? =
+                LoginManager.instance.getCookie(context)
     }
 
 }

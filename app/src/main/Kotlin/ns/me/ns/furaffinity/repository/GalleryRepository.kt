@@ -52,54 +52,6 @@ class GalleryRepository @Inject constructor(private val service: AppWebApiServic
 
     fun getLocal(account: String): Single<List<Gallery>> = Single.just(galleryDao.all(account))
 
-//    fun refresh(account: String): Observable<List<Gallery>> {
-//        return Observable.create<List<Gallery>> { emitter ->
-//            val items = galleryDao.all()
-//            if (items.isEmpty()) {
-//                service.getGallery(account, page = 1)
-//                        .map {
-//                            return@map it.viewElements.mapNotNull { convert(it) }
-//                        }
-//                        .doOnSuccess {
-//                            galleryDao.insert(*it.toTypedArray())
-//                        }
-//                        .subscribe({
-//                            emitter.onNext(it)
-//                            emitter.onComplete()
-//                        }, {
-//                            emitter.onError(it)
-//                        })
-//
-//            }
-//            val lastViewId = items.last().viewId
-//            getGalleryUntilViewId(account, lastViewId, 0, emitter)
-//
-//        }
-//    }
-
-//    private fun getGalleryUntilViewId(account: String, untilViewId: Int, nextViewId: Int, emitter: ObservableEmitter<List<Gallery>>) {
-//        service.getGallery(account)
-//                .map {
-//                    return@map it.viewElements.mapNotNull { convert(it) }
-//                }
-//                .doOnSuccess {
-//                    galleryDao.insert(*it.toTypedArray())
-//                }
-//                .subscribe({
-//                    emitter.onNext(it)
-//                    val moreNextViewId = it.lastOrNull()?.viewId?.minus(1) ?: 0
-//                    if (it.isEmpty() || untilViewId >= it.lastOrNull()?.viewId ?: 0) {
-//                        emitter.onComplete()
-//                    } else {
-//                        getMsgGallerysUntilViewId(untilViewId, moreNextViewId, emitter)
-//                    }
-//                }, {
-//                    emitter.onError(it)
-//                })
-//    }
-//
-
-
     private fun convert(value: ViewElement): Gallery? {
         val viewId = value.viewId ?: return null
         val entity = Gallery()

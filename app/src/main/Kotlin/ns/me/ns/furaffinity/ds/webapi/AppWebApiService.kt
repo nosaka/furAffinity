@@ -1,20 +1,27 @@
 package ns.me.ns.furaffinity.ds.webapi
 
 import io.reactivex.Single
+import ns.me.ns.furaffinity.ds.webapi.parser.impl.BrowseParser
 import ns.me.ns.furaffinity.ds.webapi.parser.impl.FullParser
 import ns.me.ns.furaffinity.ds.webapi.parser.impl.GalleryParser
 import ns.me.ns.furaffinity.ds.webapi.parser.impl.MsgSubmissionsParser
+import ns.me.ns.furaffinity.repository.model.remote.Browse
 import ns.me.ns.furaffinity.repository.model.remote.Full
 import ns.me.ns.furaffinity.repository.model.remote.Gallery
 import ns.me.ns.furaffinity.repository.model.remote.MsgSubmissions
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 
 /**
  * AppWebApiService
  */
 interface AppWebApiService {
+
+    @GET("/browse/{page}/")
+    @JsoupParserType(BrowseParser::class)
+    fun getBrowse(@Path("page") page: Int = 1, @Query("rating_adult") ratingAdult:Boolean = false): Single<Browse>
 
     @GET("/msg/submissions/new~{nextViewId}@72")
     @JsoupParserType(MsgSubmissionsParser::class)

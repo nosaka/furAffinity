@@ -11,26 +11,35 @@ import android.net.Uri
 import android.provider.MediaStore
 import android.support.v4.view.ViewPager
 import android.view.View
+import com.squareup.picasso.Picasso
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import ns.me.ns.furaffinity.Constants
 import ns.me.ns.furaffinity.R
+import ns.me.ns.furaffinity.repository.BrowseRepository
 import ns.me.ns.furaffinity.repository.FavoriteRepository
 import ns.me.ns.furaffinity.repository.GalleryRepository
 import ns.me.ns.furaffinity.repository.SubmissionRepository
 import ns.me.ns.furaffinity.repository.model.ViewInterface
 import ns.me.ns.furaffinity.ui.InterceptTouchViewPager
+import ns.me.ns.furaffinity.ui.ObservableDrawableTarget
 import ns.me.ns.furaffinity.ui.activity.GalleryActivity
 import ns.me.ns.furaffinity.ui.adapter.pager.FullViewPagerAdapter
 import ns.me.ns.furaffinity.util.BitmapUtil
 import ns.me.ns.furaffinity.util.LogUtil
+import ns.me.ns.furaffinity.util.RoundedTransformation
 import ns.me.ns.furaffinity.util.ToastUtil
 import javax.inject.Inject
+
 
 class FullViewViewModel @Inject constructor(application: Application) : AbstractBaseViewModel(application) {
 
     enum class Type {
-        Submission, Favorite, Gallery
+        Browse,
+        Submission,
+        Favorite,
+        Gallery
     }
 
     enum class DragState {
@@ -38,10 +47,13 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
     }
 
     @Inject
-    lateinit var favoriteRepository: FavoriteRepository
+    lateinit var browseRepository: BrowseRepository
 
     @Inject
     lateinit var submissionRepository: SubmissionRepository
+
+    @Inject
+    lateinit var favoriteRepository: FavoriteRepository
 
     @Inject
     lateinit var galleryRepository: GalleryRepository
@@ -66,16 +78,18 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
 
     val imageChangeSubject: PublishSubject<Bitmap> = PublishSubject.create()
 
+    val accountImage: ObservableDrawableTarget = ObservableDrawableTarget()
+
     private val onPropertyChangedCallback: Observable.OnPropertyChangedCallback by lazy {
         object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(observable: Observable?, id: Int) {
                 when (observable) {
                     view -> {
                         checkFavorite()
+                        loadAccountImage()
                         (view.get()?.image?.get() as? BitmapDrawable)?.bitmap?.let {
                             imageChangeSubject.onNext(it)
                         }
-
                     }
                 }
             }
@@ -122,8 +136,27 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
         }
     }
 
-    fun createViewPagerItems(type:Type, viewId: Int, account: String? = null) {
+    fun createViewPagerItems(type: Type, viewId: Int, account: String? = null) {
         when (type) {
+            Type.Browse -> {
+                browseRepository.getLocal()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            fullViewPagerAdapter.setData(it)
+                            fullViewPagerAdapter.notifyDataSetChanged()
+                            val position = fullViewPagerAdapter.findPosition(viewId)
+                            if (position == 0) {
+                                val item = fullViewPagerAdapter.getData(position)
+                                view.set(item)
+                            } else {
+                                pageChangeSubject.onNext(position)
+                            }
+                        }, {
+                            LogUtil.e(it)
+                        })
+            }
+
             Type.Submission -> {
                 submissionRepository.getLocal()
                         .subscribeOn(Schedulers.io())
@@ -237,6 +270,14 @@ class FullViewViewModel @Inject constructor(application: Application) : Abstract
         }
         returnLayoutAnimator?.setTarget(view)
         returnLayoutAnimator?.start()
+    }
+
+    fun loadAccountImage() {
+        val account = view.get()?.userElement?.get()?.account ?: return
+        Picasso.with(context).load("${Constants.IMAGE_WEB_BASE}$account${Constants.IMAGE_EXTENSION}")
+                .placeholder(R.drawable.fab_account)
+                .transform(RoundedTransformation())
+                .into(accountImage)
     }
 
     private fun checkFavorite() {

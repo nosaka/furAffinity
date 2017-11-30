@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="ns.me.ns.furaffinity.ui.activity.MainActivity">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="ns.me.ns.furaffinity.ui.viewmodel.BrowseViewModel" />
+    </data>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:onRefreshListener="@{viewModel.onRefreshListener}"
+        app:refreshing="@{viewModel.refreshing}">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:gridDivider="@{@dimen/grid_divider}"
+            app:layoutManager="android.support.v7.widget.GridLayoutManager"
+            app:onEndScrollListener="@{viewModel.onEndScrollListener}"
+            app:spanCount="3" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+</layout>

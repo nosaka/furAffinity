@@ -12,15 +12,15 @@ import ns.me.ns.furaffinity.repository.model.local.Submission
  *
  */
 @Database(entities = arrayOf(Submission::class, Favorite::class, Gallery::class), version = 1, exportSchema = false)
-abstract class AppDatabase : RoomDatabase() {
+abstract class DiscDatabase : RoomDatabase() {
 
     companion object {
 
-        private var instance: AppDatabase? = null
+        private var instance: DiscDatabase? = null
 
-        fun getDatabase(context: Context): AppDatabase {
+        fun getDatabase(context: Context): DiscDatabase {
             if (instance == null) {
-                instance = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "app.db")
+                instance = Room.databaseBuilder(context.applicationContext, DiscDatabase::class.java, "app.db")
                         .allowMainThreadQueries()
                         .build()
             }

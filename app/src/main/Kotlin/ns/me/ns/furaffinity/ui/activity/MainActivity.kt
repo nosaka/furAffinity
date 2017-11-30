@@ -12,7 +12,6 @@ import android.view.MenuItem
 import ns.me.ns.furaffinity.R
 import ns.me.ns.furaffinity.databinding.ActivityMainBinding
 import ns.me.ns.furaffinity.di.Injectable
-import ns.me.ns.furaffinity.ui.fragment.SubmissionsFragment
 import ns.me.ns.furaffinity.ui.viewmodel.MainViewModel
 import javax.inject.Inject
 
@@ -38,7 +37,7 @@ class MainActivity : AbstractBaseActivity<MainViewModel>(), Injectable {
 
         setSupportActionBar(binding.toolbar)
 
-        replaceContainer(SubmissionsFragment.instance())
+        replaceContainer(viewModel.getFirstFragment())
 
         viewModel.navigationItemSubject.subscribe {
             replaceContainer(it)

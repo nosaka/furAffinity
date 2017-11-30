@@ -10,33 +10,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import ns.me.ns.furaffinity.R
-import ns.me.ns.furaffinity.databinding.FragmentSubmissionsBinding
+import ns.me.ns.furaffinity.databinding.FragmentBrowseBinding
 import ns.me.ns.furaffinity.di.Injectable
 import ns.me.ns.furaffinity.ui.activity.FullViewActivity
+import ns.me.ns.furaffinity.ui.viewmodel.BrowseViewModel
 import ns.me.ns.furaffinity.ui.viewmodel.FullViewViewModel
-import ns.me.ns.furaffinity.ui.viewmodel.SubmissionsViewModel
 import javax.inject.Inject
 
 /**
- * Submissions Fragment
+ * Browse Fragment
  */
-class SubmissionsFragment : AbstractBaseFragment<SubmissionsViewModel>(), Injectable {
+class BrowseFragment : AbstractBaseFragment<BrowseViewModel>(), Injectable {
 
     companion object {
-        fun instance() = SubmissionsFragment()
+        fun instance() = BrowseFragment()
     }
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    override val viewModel: SubmissionsViewModel by lazy {
-        ViewModelProviders.of(this, viewModelFactory).get(SubmissionsViewModel::class.java)
+    override val viewModel: BrowseViewModel by lazy {
+        ViewModelProviders.of(this, viewModelFactory).get(BrowseViewModel::class.java)
     }
 
-    private lateinit var binding: FragmentSubmissionsBinding
+    private lateinit var binding: FragmentBrowseBinding
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_submissions, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_browse, container, false)
         return binding.root
     }
 
@@ -44,16 +44,16 @@ class SubmissionsFragment : AbstractBaseFragment<SubmissionsViewModel>(), Inject
         super.onActivityCreated(savedInstanceState)
         binding.viewModel = viewModel
         (binding.recyclerView.layoutManager as? GridLayoutManager)?.let {
-            viewModel.submissionsAdapter.determinationCellHeight(activity, it.spanCount)
+            viewModel.browseAdapter.determinationCellHeight(activity, it.spanCount)
             it.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int =
-                        if (viewModel.submissionsAdapter.isHeader(position)) it.spanCount else 1
+                        if (viewModel.browseAdapter.isHeader(position)) it.spanCount else 1
             }
         }
-        binding.recyclerView.adapter = viewModel.submissionsAdapter
+        binding.recyclerView.adapter = viewModel.browseAdapter
 
         viewModel.adapterOnItemClickSubject.subscribe {
-            startActivity(FullViewActivity.intent(activity, FullViewViewModel.Type.Submission, it.data.viewId),
+            startActivity(FullViewActivity.intent(activity, FullViewViewModel.Type.Browse, it.data.viewId),
                     FullViewActivity.option(activity, it.view)
             )
         }.also { disposer.add(it) }
